@@ -664,7 +664,7 @@ function emitTouchEvent(type, touch) {
     marionetteLogObj.clearLogs();
     */
     let domWindowUtils = curFrame.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
-    domWindowUtils.sendTouchEvent(type, [touch.identifier], [touch.screenX], [touch.screenY], [touch.radiusX], [touch.radiusY], [touch.rotationAngle], [touch.force], 1, 0);
+    domWindowUtils.sendTouchEvent(type, [touch.identifier], [touch.clientX], [touch.clientY], [touch.radiusX], [touch.radiusY], [touch.rotationAngle], [touch.force], 1, 0);
   }
 }
 
@@ -672,10 +672,10 @@ function emitTouchEvent(type, touch) {
  * This function emit mouse event
  *   @param: doc is the current document
  *           type is the type of event to dispatch
- *           detail is the number of clicks, button notes the mouse button
+ *           clickCount is the number of clicks, button notes the mouse button
  *           elClientX and elClientY are the coordinates of the mouse relative to the viewport
  */
-function emitMouseEvent(doc, type, elClientX, elClientY, detail, button) {
+function emitMouseEvent(doc, type, elClientX, elClientY, clickCount, button, inputSource) {
   if (!wasInterrupted()) {
     let loggingInfo = "emitting Mouse event of type " + type + " at coordinates (" + elClientX + ", " + elClientY + ") relative to the viewport";
     dumpLog(loggingInfo);
@@ -686,21 +686,31 @@ function emitMouseEvent(doc, type, elClientX, elClientY, detail, button) {
                     {log: elementManager.wrapValue(marionetteLogObj.getLogs())});
     marionetteLogObj.clearLogs();
     */
-    detail = detail || 1;
-    button = button || 0;
     let win = doc.defaultView;
-    // Figure out the element the mouse would be over at (x, y)
-    utils.synthesizeMouseAtPoint(elClientX, elClientY, {type: type, button: button, clickCount: detail}, win);
+    let domUtils = win.QueryInterface(Components.interfaces.nsIInterfaceRequestor).getInterface(Components.interfaces.nsIDOMWindowUtils);
+    domUtils.sendMouseEvent(type, elClientX, elClientY, button || 0, clickCount || 1, 0, false, 0, inputSource);
   }
+}
+
+/**
+ * This function emit a mouseevent that would have been dispatched from a touch event.
+ */
+function emitMouseFromTouchEvent(doc, type, elClientX, elClientY) {
+  // We have to set correct mouse event source to MOZ_SOURCE_TOUCH
+  // to offer a way for event listeners to differentiate
+  // events being the result of a physical mouse action.
+  // This is especially important for the touch event shim,
+  // in order to prevent creating touch event for these fake mouse events.
+  emitMouseEvent(doc, type, elClientX, elClientY, undefined, undefined, Ci.nsIDOMMouseEvent.MOZ_SOURCE_TOUCH);
 }
 
 /**
  * Helper function that perform a mouse tap
  */
 function mousetap(doc, x, y) {
-  emitMouseEvent(doc, 'mousemove', x, y);
-  emitMouseEvent(doc, 'mousedown', x, y);
-  emitMouseEvent(doc, 'mouseup', x, y);
+  emitMouseFromTouchEvent(doc, 'mousemove', x, y);
+  emitMouseFromTouchEvent(doc, 'mousedown', x, y);
+  emitMouseFromTouchEvent(doc, 'mouseup', x, y);
 }
 
 
@@ -787,8 +797,8 @@ function generateEvents(type, x, y, touchId, target) {
     case 'press':
       isTap = true;
       if (mouseEventsOnly) {
-        emitMouseEvent(doc, 'mousemove', x, y);
-        emitMouseEvent(doc, 'mousedown', x, y);
+        emitMouseFromTouchEvent(doc, 'mousemove', x, y);
+        emitMouseFromTouchEvent(doc, 'mousedown', x, y);
       }
       else {
         let touchId = nextTouchId++;
@@ -800,7 +810,7 @@ function generateEvents(type, x, y, touchId, target) {
       break;
     case 'release':
       if (mouseEventsOnly) {
-        emitMouseEvent(doc, 'mouseup', lastCoordinates[0], lastCoordinates[1]);
+        emitMouseFromTouchEvent(doc, 'mouseup', lastCoordinates[0], lastCoordinates[1]);
       }
       else {
         let touch = touchIds[touchId];
@@ -817,7 +827,7 @@ function generateEvents(type, x, y, touchId, target) {
     case 'cancel':
       isTap = false;
       if (mouseEventsOnly) {
-        emitMouseEvent(doc, 'mouseup', lastCoordinates[0], lastCoordinates[1]);
+        emitMouseFromTouchEvent(doc, 'mouseup', lastCoordinates[0], lastCoordinates[1]);
       }
       else {
         emitTouchEvent('touchcancel', touchIds[touchId]);
@@ -828,7 +838,7 @@ function generateEvents(type, x, y, touchId, target) {
     case 'move':
       isTap = false;
       if (mouseEventsOnly) {
-        emitMouseEvent(doc, 'mousemove', x, y);
+        emitMouseFromTouchEvent(doc, 'mousemove', x, y);
       }
       else {
         touch = createATouch(touchIds[touchId].target, x, y, touchId);
@@ -1029,7 +1039,7 @@ function emitMultiEvents(type, touch, touches) {
   // Create changed touches
   let changedTouches = doc.createTouchList(touch);
   // Create the event object
-  let event = curFrame.document.createEvent('TouchEvent');
+  let event = doc.createEvent('TouchEvent');
   event.initTouchEvent(type,
                        true,
                        true,

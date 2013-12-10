@@ -11,14 +11,18 @@ let handlerCount = 0;
 
 let orig_w3c_touch_events = Services.prefs.getIntPref('dom.w3c_touch_events.enabled');
 
+let trackedWindows = new WeakMap();
+
 // =================== Touch ====================
 // Simulate touch events on desktop
 function TouchEventHandler (window) {
-  let contextMenuTimeout = 0;
+  // Returns an already instanciated handler for this window
+  let cached = trackedWindows.get(window);
+  if (cached) {
+    return cached;
+  }
 
-  // This guard is used to not re-enter the events processing loop for
-  // self dispatched events
-  let ignoreEvents = false;
+  let contextMenuTimeout = 0;
 
   let threshold = 25;
   try {
@@ -34,34 +38,33 @@ function TouchEventHandler (window) {
     enabled: false,
     events: ['mousedown', 'mousemove', 'mouseup', 'click'],
     start: function teh_start() {
-      let isReloadNeeded = Services.prefs.getIntPref('dom.w3c_touch_events.enabled') != 1;
-      handlerCount++;
-      Services.prefs.setIntPref('dom.w3c_touch_events.enabled', 1);
+      if (this.enabled)
+        return false;
       this.enabled = true;
+      let isReloadNeeded = Services.prefs.getIntPref('dom.w3c_touch_events.enabled') != 1;
+      Services.prefs.setIntPref('dom.w3c_touch_events.enabled', 1);
       this.events.forEach((function(evt) {
         window.addEventListener(evt, this, true);
       }).bind(this));
       return isReloadNeeded;
     },
     stop: function teh_stop() {
-      handlerCount--;
-      if (handlerCount == 0)
-        Services.prefs.setIntPref('dom.w3c_touch_events.enabled', orig_w3c_touch_events);
+      if (!this.enabled)
+        return;
       this.enabled = false;
+      Services.prefs.setIntPref('dom.w3c_touch_events.enabled', orig_w3c_touch_events);
       this.events.forEach((function(evt) {
         window.removeEventListener(evt, this, true);
       }).bind(this));
     },
     handleEvent: function teh_handleEvent(evt) {
-      if (evt.button || ignoreEvents ||
-          evt.mozInputSource == Ci.nsIDOMMouseEvent.MOZ_SOURCE_UNKNOWN)
+      // Ignore all but real mouse event coming from physical mouse
+      // (especially ignore mouse event being dispatched from a touch event)
+      if (evt.button || evt.mozInputSource != Ci.nsIDOMMouseEvent.MOZ_SOURCE_MOUSE) {
         return;
+      }
 
-      // The gaia system window use an hybrid system even on the device which is
-      // a mix of mouse/touch events. So let's not cancel *all* mouse events
-      // if it is the current target.
       let content = this.getContent(evt.target);
-      let isSystemWindow = content.location.toString().indexOf("system.gaiamobile.org") != -1;
 
       let eventTarget = this.target;
       let type = '';
@@ -116,12 +119,10 @@ function TouchEventHandler (window) {
           if (this.cancelClick)
             return;
 
-          ignoreEvents = true;
           content.setTimeout(function dispatchMouseEvents(self) {
             self.fireMouseEvent('mousedown', evt);
             self.fireMouseEvent('mousemove', evt);
             self.fireMouseEvent('mouseup', evt);
-            ignoreEvents = false;
          }, 0, this);
 
           return;
@@ -132,6 +133,12 @@ function TouchEventHandler (window) {
         this.sendTouchEvent(evt, target, type);
       }
 
+      // The gaia system window use an hybrid system even on the device which is
+      // a mix of mouse/touch events. So let's not cancel *all* mouse events
+      // if it is the current target.
+      // But still cancel them, even for the system app, if they are already
+      // being dispatched from a touch event (typical scenario: marionette fake touch events)
+      let isSystemWindow = content.location.toString().indexOf("system.gaiamobile.org") != -1;
       if (!isSystemWindow) {
         evt.preventDefault();
         evt.stopImmediatePropagation();
@@ -141,7 +148,7 @@ function TouchEventHandler (window) {
       let content = this.getContent(evt.target);
       var utils = content.QueryInterface(Ci.nsIInterfaceRequestor)
                          .getInterface(Ci.nsIDOMWindowUtils);
-      utils.sendMouseEvent(type, evt.clientX, evt.clientY, 0, 1, 0, true);
+      utils.sendMouseEvent(type, evt.clientX, evt.clientY, 0, 1, 0, true, 0, Ci.nsIDOMMouseEvent.MOZ_SOURCE_TOUCH);
     },
     sendContextMenu: function teh_sendContextMenu(target, x, y, delay) {
       let doc = target.ownerDocument;
@@ -179,15 +186,10 @@ function TouchEventHandler (window) {
     },
     getContent: function teh_getContent(target) {
       let win = target.ownerDocument.defaultView;
-      let docShell = win.QueryInterface(Ci.nsIInterfaceRequestor)
-                    .getInterface(Ci.nsIWebNavigation)
-                    .QueryInterface(Ci.nsIDocShellTreeItem);
-      let topDocShell = docShell.sameTypeRootTreeItem;
-      topDocShell.QueryInterface(Ci.nsIDocShell);
-      let top = topDocShell.contentViewer.DOMDocument.defaultView;
-      return top;
+      return win;
     }
   };
+  trackedWindows.set(window, TouchEventHandler);
 
   return TouchEventHandler;
 }
