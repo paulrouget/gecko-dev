@@ -50,15 +50,20 @@ AlertsService.prototype = {
                                                         aBidi,
                                                         aLang) {
     let browser = Services.wm.getMostRecentWindow("navigator:browser");
-    browser.AlertsHelper.showAlertNotification(aImageUrl, aTitle, aText,
-                                               aTextClickable, aCookie,
-                                               aAlertListener, aName, aBidi,
-                                               aLang);
+    if (browser) {
+      // Might be called before the window is ready
+      browser.AlertsHelper.showAlertNotification(aImageUrl, aTitle, aText,
+                                                aTextClickable, aCookie,
+                                                aAlertListener, aName, aBidi,
+                                                aLang);
+    }
   },
 
   closeAlert: function(aName) {
     let browser = Services.wm.getMostRecentWindow("navigator:browser");
-    browser.AlertsHelper.closeAlert(aName);
+    if (browser) {
+      browser.AlertsHelper.closeAlert(aName);
+    }
   },
 
   // nsIAppNotificationService

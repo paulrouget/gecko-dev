@@ -75,3 +75,7 @@ category update-timer WebappsUpdateTimer @mozilla.org/b2g/webapps-update-timer;1
 # HelperAppDialog.js
 component {710322af-e6ae-4b0c-b2c9-1474a87b077e} HelperAppDialog.js
 contract @mozilla.org/helperapplauncherdialog;1 {710322af-e6ae-4b0c-b2c9-1474a87b077e}
+
+# DebuggerServerController.js
+component {9390f6ac-7914-46c6-b8d0-ccc7db550d8c} DebuggerServerController.js
+contract @mozilla.org/devtools/DebuggerServerController;1 {9390f6ac-7914-46c6-b8d0-ccc7db550d8c}
