@@ -11,9 +11,6 @@ DEFAULT_COMMON_PREFS = {
     'javascript.options.strict': True,
     'javascript.options.showInConsole': True,
 
-    # Allow remote connections to the debugger
-    'devtools.debugger.remote-enabled' : True,
-
     'extensions.sdk.console.logLevel': 'info',
 
     'extensions.checkCompatibility.nightly' : False,
