@@ -148,6 +148,7 @@ var DebuggerServer = {
   _listener: null,
   _initialized: false,
   _transportInitialized: false,
+  _controller: null,
   xpcInspector: null,
   // Number of currently open TCP connections.
   _socketConnections: 0,
@@ -159,6 +160,16 @@ var DebuggerServer = {
   LONG_STRING_LENGTH: 10000,
   LONG_STRING_INITIAL_LENGTH: 1000,
   LONG_STRING_READ_LENGTH: 65 * 1024,
+
+  get controller() {
+    if (!this._controller) {
+      let cid = "@mozilla.org/devtools/DebuggerServerController;1";
+      if (cid in Cc) {
+        this._controller = Cc[cid].getService(Ci.nsIDebuggerServerController);
+      }
+    }
+    return this._controller;
+  },
 
   /**
    * A handler function that prompts the user to accept or decline the incoming
@@ -209,7 +220,6 @@ var DebuggerServer = {
     }
     if (result == 2) {
       DebuggerServer.closeListener(true);
-      Services.prefs.setBoolPref("devtools.debugger.remote-enabled", false);
     }
     return false;
   },
@@ -389,9 +399,6 @@ var DebuggerServer = {
    *        Otherwise, the path to the unix socket domain file to listen on.
    */
   openListener: function DS_openListener(aPortOrPath) {
-    if (!Services.prefs.getBoolPref("devtools.debugger.remote-enabled")) {
-      return false;
-    }
     this._checkInit();
 
     // Return early if the server is already listening.
@@ -424,6 +431,9 @@ var DebuggerServer = {
       throw Cr.NS_ERROR_NOT_AVAILABLE;
     }
     this._socketConnections++;
+    if (this.controller) {
+      this.controller.onDebuggerStarted(aPortOrPath);
+    }
 
     return true;
   },
@@ -446,6 +456,9 @@ var DebuggerServer = {
       this._listener.close();
       this._listener = null;
       this._socketConnections = 0;
+      if (this.controller) {
+        this.controller.onDebuggerStopped();
+      }
     }
 
     return true;

@@ -25,6 +25,7 @@ EXTRA_COMPONENTS += [
 
 EXTRA_PP_COMPONENTS += [
     'B2GComponents.manifest',
+    'DebuggerServerController.js',
     'DirectoryProvider.js',
     'RecoveryService.js',
 ]

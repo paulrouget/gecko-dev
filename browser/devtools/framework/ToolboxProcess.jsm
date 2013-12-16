@@ -63,13 +63,7 @@ BrowserToolboxProcess.prototype = {
       dumpn("Created a separate loader instance for the DebuggerServer.");
     }
 
-    if (!this.debuggerServer.initialized) {
-      this.debuggerServer.init();
-      this.debuggerServer.addBrowserActors();
-      dumpn("initialized and added the browser actors for the DebuggerServer.");
-    }
-
-    this.debuggerServer.openListener(Prefs.chromeDebuggingPort);
+    this.debuggerServer.controller.start(Prefs.chromeDebuggingPort);
 
     dumpn("Finished initializing the chrome toolbox server.");
     dumpn("Started listening on port: " + Prefs.chromeDebuggingPort);

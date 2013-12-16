@@ -4,17 +4,8 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at http://mozilla.org/MPL/2.0/.
 
-TEST_DIRS += ['tests']
-
-XPIDL_SOURCES += [
-    'nsIDebuggerServerController.idl',
-    'nsIJSInspector.idl',
+EXTRA_COMPONENTS += [
+    'CommandLineHandler.js',
+    'DebuggerServerController.js',
+    'DevToolsComponents.manifest',
 ]
-
-XPIDL_MODULE = 'jsinspector'
-
-SOURCES += [
-    'nsJSInspector.cpp',
-]
-
-FINAL_LIBRARY = 'xul'

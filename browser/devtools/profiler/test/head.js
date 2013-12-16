@@ -4,7 +4,6 @@
 let temp = {};
 
 const PROFILER_ENABLED = "devtools.profiler.enabled";
-const REMOTE_ENABLED = "devtools.debugger.remote-enabled";
 const SHOW_PLATFORM_DATA = "devtools.profiler.ui.show-platform-data";
 const PROFILE_IDLE = 0;
 const PROFILE_RUNNING = 1;
@@ -26,7 +25,6 @@ Services.scriptloader.loadSubScript(testDir + "../../../commandline/test/helpers
 registerCleanupFunction(function () {
   helpers = null;
   Services.prefs.clearUserPref(PROFILER_ENABLED);
-  Services.prefs.clearUserPref(REMOTE_ENABLED);
   Services.prefs.clearUserPref(SHOW_PLATFORM_DATA);
   DebuggerServer.destroy();
 

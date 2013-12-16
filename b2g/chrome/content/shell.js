@@ -44,11 +44,6 @@ XPCOMUtils.defineLazyServiceGetter(Services, 'fm',
                                    '@mozilla.org/focus-manager;1',
                                    'nsIFocusManager');
 
-XPCOMUtils.defineLazyGetter(this, 'DebuggerServer', function() {
-  Cu.import('resource://gre/modules/devtools/dbg-server.jsm');
-  return DebuggerServer;
-});
-
 XPCOMUtils.defineLazyGetter(this, "ppmm", function() {
   return Cc["@mozilla.org/parentprocessmessagemanager;1"]
          .getService(Ci.nsIMessageListenerManager);
@@ -722,9 +717,6 @@ var CustomEventManager = {
       case 'system-message-listener-ready':
         Services.obs.notifyObservers(null, 'system-message-listener-ready', null);
         break;
-      case 'remote-debugger-prompt':
-        RemoteDebugger.handleEvent(detail);
-        break;
       case 'captive-portal-login-cancel':
         CaptivePortalLoginHelper.handleEvent(detail);
         break;
@@ -1021,83 +1013,6 @@ let IndexedDBPromptHelper = {
       observer.observe(null, responseTopic,
                        Ci.nsIPermissionManager.DENY_ACTION);
     }, 0);
-  }
-}
-
-let RemoteDebugger = {
-  _promptDone: false,
-  _promptAnswer: false,
-
-  prompt: function debugger_prompt() {
-    this._promptDone = false;
-
-    shell.sendChromeEvent({
-      "type": "remote-debugger-prompt"
-    });
-
-    while(!this._promptDone) {
-      Services.tm.currentThread.processNextEvent(true);
-    }
-
-    return this._promptAnswer;
-  },
-
-  handleEvent: function debugger_handleEvent(detail) {
-    this._promptAnswer = detail.value;
-    this._promptDone = true;
-  },
-
-  // Start the debugger server.
-  start: function debugger_start() {
-    if (!DebuggerServer.initialized) {
-      // Ask for remote connections.
-      DebuggerServer.init(this.prompt.bind(this));
-      DebuggerServer.chromeWindowType = "navigator:browser";
-      DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/webbrowser.js");
-      // Until we implement unix domain socket, we enable content actors
-      // only on development devices
-      if (Services.prefs.getBoolPref("devtools.debugger.enable-content-actors")) {
-        DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/script.js");
-        DebuggerServer.addGlobalActor(DebuggerServer.ChromeDebuggerActor, "chromeDebugger");
-        DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/webconsole.js");
-        DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/gcli.js");
-        if ("nsIProfiler" in Ci) {
-          DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/profiler.js");
-        }
-        DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/styleeditor.js");
-        DebuggerServer.enableWebappsContentActor = true;
-      }
-      DebuggerServer.addActors('chrome://browser/content/dbg-browser-actors.js');
-      DebuggerServer.addActors("resource://gre/modules/devtools/server/actors/webapps.js");
-      DebuggerServer.registerModule("devtools/server/actors/device");
-      DebuggerServer.registerModule("devtools/server/actors/inspector")
-
-#ifdef MOZ_WIDGET_GONK
-      DebuggerServer.onConnectionChange = function(what) {
-        AdbController.updateState();
-      }
-#endif
-    }
-
-    let path = Services.prefs.getCharPref("devtools.debugger.unix-domain-socket") ||
-               "/data/local/debugger-socket";
-    try {
-      DebuggerServer.openListener(path);
-    } catch (e) {
-      dump('Unable to start debugger server: ' + e + '\n');
-    }
-  },
-
-  stop: function debugger_stop() {
-    if (!DebuggerServer.initialized) {
-      return;
-    }
-
-    try {
-      DebuggerServer.closeListener();
-    } catch (e) {
-      dump('Unable to stop debugger server: ' + e + '\n');
-    }
   }
 }
 
