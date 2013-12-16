@@ -17,3 +17,8 @@ PARALLEL_DIRS += [
     'acorn',
     'pretty-fast'
 ]
+
+EXTRA_COMPONENTS += [
+    'DevToolsAppStartup.js',
+    'DevToolsComponents.manifest',
+]
