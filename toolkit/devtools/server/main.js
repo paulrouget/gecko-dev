@@ -220,7 +220,6 @@ var DebuggerServer = {
     }
     if (result == 2) {
       DebuggerServer.closeListener(true);
-      Services.prefs.setBoolPref("devtools.debugger.remote-enabled", false);
     }
     return false;
   },
@@ -400,9 +399,6 @@ var DebuggerServer = {
    *        Otherwise, the path to the unix socket domain file to listen on.
    */
   openListener: function DS_openListener(aPortOrPath) {
-    if (!Services.prefs.getBoolPref("devtools.debugger.remote-enabled")) {
-      return false;
-    }
     this._checkInit();
 
     // Return early if the server is already listening.
