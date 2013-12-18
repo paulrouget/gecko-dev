@@ -14,22 +14,104 @@
 
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
-    <script type="application/javascript;version=1.8" src="pagesummary.js"></script>
-    <style>
-      body {
-        background: white;
-      }
-
-      .color {
-        width: 40px; height: 40px;
-        display: inline-block;
-      }
-    </style>
+  <script type="application/javascript;version=1.8" src="chrome://browser/content/devtools/app-manager/template.js"></script>
+  <script type="application/javascript;version=1.8" src="pagesummary.js"></script>
+  <link rel="stylesheet" href="chrome://browser/skin/devtools/pagesummary/page.css" type="text/css"/>
   </head>
   <body>
-  <button onclick="start()">go</button>
-  <p id="colors"></p>
-  <pre id="preSummary"></pre>
-  <pre id="preColors"></pre>
+    <span id="throbber">loading…</span>
+
+    <!-- FIXME: strategy if JSON format change -->
+
+    <div id="timeline"></div>
+
+    <section>
+      <h1>General</h1>
+      <div>
+        <h2>Encoding</h2>
+        <p template='{"type":"textContent","path":"characterSet"}'></p>
+      </div>
+      <div>
+        <h2>Content type</h2>
+        <p template='{"type":"textContent","path":"contentType"}'></p>
+      </div>
+      <div>
+        <h2>Meta nodes</h2>
+        <p template='{"type":"textContent","path":"metaNodes.length"}'></p>
+      </div>
+    </section>
+
+    <section>
+      <h1>Resources</h1>
+      <div>
+        <h2>scripts</h2>
+        <p template='{"type":"textContent","path":"scripts.length"}'></p>
+      </div>
+      <div>
+        <h2>CSS Style Sheets</h2>
+        <p template='{"type":"textContent","path":"styles.length"}'></p>
+      </div>
+      <div id="plugins">
+        <h2>Plugins</h2>
+        <p template='{"type":"textContent","path":"plugins.length"}'></p>
+      </div>
+      <div>
+        <h2>Documents</h2>
+        <p template='{"type":"textContent","path":"docShellCount"}'></p>
+      </div>
+      <div>
+        <h2>Fonts</h2>
+        <p template='{"type":"textContent","path":"fonts.length"}'></p>
+      </div>
+    </section>
+
+    <section>
+      <h1>Troubleshooting</h1>
+      <div id="quirksmode">
+        <h2>Quirks mode</h2>
+        <p template='{"type":"textContent","path":"quirksMode"}'></p>
+      </div>
+
+      <div id="errors">
+        <h2>Errors</h2>
+        <p template='{"type":"textContent","path":"messageCount.error"}'></p>
+      </div>
+
+      <div id="warnings">
+        <h2>Warning</h2>
+        <p template='{"type":"textContent","path":"messageCount.warning"}'></p>
+      </div>
+    </section>
+
+    <section require-true="security.ssl">
+      <h1>Security</h1>
+      <div>
+        <h2>SSL</h2>
+        <p>Yes</p>
+      </div>
+      <div id="trustedcertificate">
+        <h2>Trusted Certificate</h2>
+        <p template='{"type":"textContent","path":"security.isTrusted"}'></p>
+      </div>
+      <div id="mixedcontent">
+        <h2>Mixed content</h2>
+        <p template='{"type":"textContent","path":"hasMixedContent"}'></p>
+      </div>
+    </section>
+
+    <section require-false="security.ssl">
+      <h1>Security</h1>
+      <div>
+        <h2>SSL</h2>
+        <p>No</p>
+      </div>
+      <div>
+        <h2>Mixed content</h2>
+        <p template='{"type":"textContent","path":"hasMixedContent"}'></p>
+      </div>
+    </section>
+
+    <pre id="preSummary"></pre>
+
   </body>
 </html>

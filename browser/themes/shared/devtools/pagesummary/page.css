@@ -1,0 +1,65 @@
+* {
+  -moz-box-sizing: border-box;
+  margin: 0;
+}
+
+body.processed > #throbber {
+  display: none;
+}
+
+body:not(.processed) > #timeline,
+body:not(.processed) > section {
+  display: none;
+}
+
+.happy {
+  color: hsl(109.884, 85%, 40%);
+}
+
+.okayish {
+  color: hsl(34.839, 100%, 43%);
+}
+
+.sad {
+  color: hsl(14.938, 100%, 47%);
+}
+
+body {
+  background: white;
+  font-family: Helvetica, Helvetica Neue, sans-serif;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 1.5rem;
+  border-bottom: 1px solid hsl(210, 5%, 93%);
+  padding: 0.75rem 1rem;
+  margin: 0px 0px 1rem;
+  background: none repeat scroll 0% 0% hsl(0, 0%, 97%);
+  border-radius: 0.5rem;
+  color: hsl(210, 11%, 45%);
+  line-height: inherit;
+}
+
+section {
+  display: inline-block;
+  min-width: 33%;
+}
+
+section > div {
+  display: inline-block;
+  color: hsl(210, 11%, 45%);
+  margin: 0.5rem;
+  vertical-align: top;
+}
+
+section > div > h2 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+}
+
+section > div > p {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 300;
+}

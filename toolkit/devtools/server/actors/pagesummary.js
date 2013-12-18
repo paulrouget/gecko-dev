@@ -18,7 +18,6 @@ exports.unregister = function(handle) {
 
 
 Cu.import("resource://gre/modules/jsdebugger.jsm");
-Cu.import('resource://gre/modules/devtools/dbg-server.jsm');
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 
@@ -33,17 +32,34 @@ let PageSummary = protocol.ActorClass({
 
   getSummary: method(function() {
     let window = this.tabActor.window;
-
-    // FIXME: wait until page is loaded
+    if (window.document.readyState == "complete") {
+      return this._getSummaryAfterLoad();
+    } 
 
     let deferred = promise.defer();
+
+    let onLoad = () => {
+      window.removeEventListener("load", onLoad);
+      this._getSummaryAfterLoad().then(json => {
+        return deferred.resolve(json);
+      });
+    }
+
+    window.addEventListener("load", onLoad);
+
+    return deferred.promise;
+
+  }, {request: {}, response: { value: RetVal("json")}}),
+
+  _getSummaryAfterLoad: function() {
+    let window = this.tabActor.window;
+
     let json = {};
 
     let domWindowUtils = window.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIDOMWindowUtils);
     let docShell = window.QueryInterface(Ci.nsIInterfaceRequestor).getInterface(Ci.nsIWebNavigation).QueryInterface(Ci.nsIDocShell);
     let eventListenerService = Cc["@mozilla.org/eventlistenerservice;1"].getService(Ci.nsIEventListenerService);
     let DOMUtils = Cc["@mozilla.org/inspector/dom-utils;1"].getService(Ci.inIDOMUtils);
-    let dbg = new Debugger(window);
 
     // Basic
     json.title = window.document.title;
@@ -82,12 +98,13 @@ let PageSummary = protocol.ActorClass({
         let cert = status.serverCert;
         let issuerName = cert.issuerOrganization || cert.issuerName;
         json.security = {
+          ssl: true,
           hostName : hostName,
           cAName : issuerName,
           encryptionAlgorithm : undefined,
           encryptionStrength : undefined,
           isBroken : isBroken,
-          isEV : isEV,
+          isExtendedValidationCertificate: isEV,
           isDomainMismatch: status.isDomainMismatch,
           isNotValidAtThisTime: status.isNotValidAtThisTime,
           isUntrusted: status.isUntrusted
@@ -99,12 +116,16 @@ let PageSummary = protocol.ActorClass({
         } catch (e) { }
       } else {
         json.security = {
+          ssl: false,
           hostName : hostName,
           isBroken : isBroken,
-          isEV : isEV,
+          isExtendedValidationCertificate : isEV,
         };
       }
     })()
+
+    // Timing
+    json.timing = window.performance.timing.toJSON()
 
     // Viewport
     json.viewport = {
@@ -162,13 +183,17 @@ let PageSummary = protocol.ActorClass({
     json.metaNodes = metanodes.map((m) => ({name: m.name, content: m.content, httpEquiv: m.httpEquiv}));
 
     // Scripts
-    json.scripts = [s for (s of new Set(dbg.findScripts().map(s => s.url)))];
+    if (window.document.scripts) {
+      let scripts = window.document.scripts;
+      scripts = Array.prototype.slice.call(scripts);
+      json.scripts = scripts.map((s) => s.src?s.src:"inline");
+    }
 
     // StyleSheets
     if (window.document.styleSheets) {
       let ssheets = window.document.styleSheets;
       ssheets = Array.prototype.slice.call(ssheets);
-      json.ssheets = ssheets.map((s) => s.href?s.href:"inline");
+      json.styles = ssheets.map((s) => s.href?s.href:"inline");
     }
 
     // Plugins
@@ -297,7 +322,7 @@ let PageSummary = protocol.ActorClass({
               sourceName: aMessage.sourceName,
               lineNumber: aMessage.lineNumber
             }
-          case "LogMessage": // FIXME: skip?
+          case "LogMessage": // skipped below
             let msg = aPacket.message;
             return {
               category: categoryToString(CATEGORY_JS),
@@ -317,6 +342,8 @@ let PageSummary = protocol.ActorClass({
               sourceName: aMessage.filename,
               lineNumber: aMessage.lineNumber
             }
+          default:
+            return null;
         }
       });
 
@@ -370,7 +397,7 @@ let PageSummary = protocol.ActorClass({
 
     return faviconDefered.promise.then(() => json);
 
-  }, {request: {}, response: { value: RetVal("json")}}),
+  }
 
 });
 

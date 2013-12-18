@@ -32,13 +32,10 @@ PageSummaryPanel.prototype = {
 
     return targetPromise
       .then(() => {
-        this.panelWin.gToolbox = this._toolbox;
-        this.panelWin.gTarget = this.target;
-        this.panelWin.gFront = new PageSummaryFront(this.target.client, this.target.form);
+        this.panelWin.start(new PageSummaryFront(this.target.client, this.target.form));
       })
       .then(() => {
         this.isReady = true;
-        dump("ok:ready");
         this.emit("ready");
         return this;
       })

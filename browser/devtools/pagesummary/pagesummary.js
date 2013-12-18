@@ -4,42 +4,170 @@
 "use strict";
 
 const { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
-
-Cu.import("resource://gre/modules/Services.jsm");
-Cu.import("resource://gre/modules/XPCOMUtils.jsm");
-Cu.import("resource://gre/modules/Task.jsm");
-Cu.import("resource://gre/modules/devtools/Loader.jsm");
-Cu.import("resource:///modules/devtools/SideMenuWidget.jsm");
-Cu.import("resource:///modules/devtools/ViewHelpers.jsm");
-
 const require = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools.require;
-const promise = require("sdk/core/promise");
-const EventEmitter = require("devtools/shared/event-emitter");
-const {Tooltip} = require("devtools/shared/widgets/Tooltip");
-const Editor = require("devtools/sourceeditor/editor");
 
-let gToolbox, gTarget, gFront;
+let summary;
 
-function start() {
-  gFront.getSummary().then(summary => {
-    document.querySelector("#preSummary").textContent = "summary: " + JSON.stringify(summary, null, 2);
-  });
+window.start = function(front) {
+  front.getSummary().then(aSummary => {
+    summary = aSummary;
 
-  gFront.getColorProfile().then(colors => {
-    document.querySelector("#preColors").textContent = "colors: " + JSON.stringify(colors, null, 2);
-    colors = colors.map(c => {
-      let r = c.color >> 16;
-      let g = c.color >> 8 & 0xff;
-      let b = c.color & 0xff;
-      c.color = {r: r, g: g, b: b};
-      return c;
-    });
-    for (let c of colors) {
-      let {r, g, b} = c.color;
-      let colorSpan = document.createElement("span");
-      document.querySelector("#colors").appendChild(colorSpan)
-      colorSpan.className = "color";
-      colorSpan.style.backgroundColor = "rgb(" + [r,g,b].join(",") + ")";
+    let nodes = document.querySelectorAll("[require-presence]");
+    for (let n of nodes) {
+      requirePresence(n, n.getAttribute("require-presence"));
     }
+
+    nodes = document.querySelectorAll("[require-true]");
+    for (let n of nodes) {
+      requireValue(n, n.getAttribute("require-true"), true);
+    }
+
+    nodes = document.querySelectorAll("[require-false]");
+    for (let n of nodes) {
+      requireValue(n, n.getAttribute("require-false"), false);
+    }
+
+    buildTimeline();
+
+    preprocess();
+
+    let store = {
+      object: summary,
+      on: function() {},
+      off: function() {},
+    };
+
+    let template = new Template(document.body, store, function(){});
+    template.start();
+
+    // document.querySelector("#preSummary").textContent = "summary: " + JSON.stringify(summary, null, 2);
+    document.body.classList.add("processed");
+
+    setMood();
   });
 }
+
+/* preprocess */
+
+function preprocess() {
+  summary.messages = summary.messages.filter((aMessage) => {
+    return aMessage.category != "css";
+  });
+  summary.messageCount = {
+    error: summary.messages.filter(m => m.severity == "error").length,
+    warning: summary.messages.filter(m => m.severity == "warning").length,
+  }
+  summary.security.isTrusted = summary.security.isUntrusted?"Untrusted":"Trusted";
+}
+
+/* set mood */
+
+function setMood() {
+  let div;
+
+
+  div = document.querySelector("#plugins");
+  if (summary.plugins.length > 0)
+    div.classList.add("sad");
+  else
+    div.classList.add("happy");
+
+  div = document.querySelector("#quirksmode");
+  if (summary.quirksMode)
+    div.classList.add("sad");
+  else
+    div.classList.add("happy");
+
+  div = document.querySelector("#errors");
+  if (summary.messageCount.error > 0)
+    div.classList.add("sad");
+  else
+    div.classList.add("happy");
+
+  div = document.querySelector("#warnings");
+  if (summary.messageCount.warning > 0)
+    div.classList.add("okayish");
+
+  div = document.querySelector("#trustedcertificate");
+  if (summary.isUntrusted)
+    div.classList.add("sad");
+  else
+    div.classList.add("happy");
+
+  div = document.querySelector("#mixedcontent");
+  if (summary.hasMixedContent)
+    div.classList.add("sad");
+  else
+    div.classList.add("happy");
+
+}
+
+/* requires */
+
+// Kill nodes
+function requirePresence(n, path) {
+  let words = path.split(".");
+  let obj = summary;
+  for (let w of words) {
+    if (w in obj) {
+      obj = obj[w];
+    } else {
+      n.remove();
+      return false;
+    }
+  }
+  return true;
+}
+
+function requireValue(n, path, value) {
+  console.log("requireValue: ", n, path, value);
+  if (requirePresence(n, path)) {
+    let words = path.split(".");
+    let obj = summary;
+    for (let w of words) {
+      obj = obj[w];
+    }
+    if (obj != value) {
+      n.remove();
+      return true;
+    }
+  }
+  return false;
+}
+
+
+/* Timeline */
+
+function buildTimeline() {
+  let t = summary.timing;
+
+  // domainLookupStart - domainLookupEnd;
+  let domainLookupStart = t.domainLookupStart - t.fetchStart;
+  let domainLookupDuration = t.domainLookupEnd - t.domainLookupStart;
+
+  // connectStart - connectEnd;
+  let connectStart = t.connectStart - t.fetchStart;
+  let connectDuration = t.connectEnd - t.connectStart;
+
+  // secureConnectionStart;
+  let secureConnectionStart = undefined;
+  if (t.secureConnectionStart) {
+    secureConnectionStart = t.secureConnectionStart - t.fetchStart;
+  }
+
+  // requestStart
+  let requestStart = t.requestStart - t.fetchStart;
+
+  // responseStart - responseEnd
+  let responseStart = t.responseStart - t.fetchStart;
+  let responseDuration = t.responseEnd - t.responseStart;
+
+  /*
+  domLoading;
+  domInteractive;
+  domContentLoadedEventStart - domContentLoadedEventEnd;
+  domComplete;
+  loadEventStart - loadEventEnd;
+  */
+}
+
