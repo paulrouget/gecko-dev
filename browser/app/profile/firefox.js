@@ -1266,6 +1266,9 @@ pref("devtools.editor.autoclosebrackets", true);
 // Enable the Font Inspector
 pref("devtools.fontinspector.enabled", true);
 
+// Enable the PageSummary panel
+pref("devtools.pagesummary.enabled", true);
+
 // Pref to store the browser version at the time of a telemetry ping for an
 // opened developer tool. This allows us to ping telemetry just once per browser
 // version for each user.
