@@ -298,6 +298,7 @@ browser.jar:
         skin/classic/browser/devtools/app-manager/default-app-icon.png      (../shared/devtools/app-manager/images/default-app-icon.png)
         skin/classic/browser/devtools/pagesummary/page.css                  (../shared/devtools/pagesummary/page.css)
         skin/classic/browser/devtools/pagesummary/plugin.svg                (../shared/devtools/pagesummary/plugin.svg)
+        skin/classic/browser/devtools/pagesummary/icons.woff                (../shared/devtools/pagesummary/icons.woff)
 #ifdef MOZ_SERVICES_SYNC
         skin/classic/browser/sync-throbber.png
         skin/classic/browser/sync-16.png
@@ -613,6 +614,7 @@ browser.jar:
         skin/classic/aero/browser/devtools/app-manager/default-app-icon.png      (../shared/devtools/app-manager/images/default-app-icon.png)
         skin/classic/aero/browser/devtools/pagesummary/page.css                  (../shared/devtools/pagesummary/page.css)
         skin/classic/aero/browser/devtools/pagesummary/plugin.svg                (../shared/devtools/pagesummary/plugin.svg)
+        skin/classic/aero/browser/devtools/pagesummary/icons.woff                (../shared/devtools/pagesummary/icons.woff)
 #ifdef MOZ_SERVICES_SYNC
         skin/classic/aero/browser/sync-throbber.png
         skin/classic/aero/browser/sync-16.png

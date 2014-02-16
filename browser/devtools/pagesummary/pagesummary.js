@@ -12,7 +12,7 @@ window.start = function(front) {
   front.getSummary().then(aSummary => {
     summary = aSummary;
 
-    //buildTimeline();
+    buildTimeline();
 
     preprocess();
 
@@ -57,48 +57,39 @@ function hideThings() {
 /* set mood */
 
 function setMood() {
-  let li;
+  let mood;
 
-  li = document.querySelector(".plugins");
-  if (summary.plugins.length > 0)
-    li.classList.add("sad");
-  else
-    li.classList.add("happy");
-
-  li = document.querySelector(".quirksmode");
-  if (summary.quirksMode)
-    li.classList.add("sad");
-  else
-    li.classList.add("happy");
-
-  li = document.querySelector(".errors");
-  if (summary.messageCount.error > 0)
-    li.classList.add("sad");
-  else
-    li.classList.add("happy");
-
-  li = document.querySelector(".warnings");
-  if (summary.messageCount.warning == 0)
-    li.classList.add("happy");
-
-  if (summary.security.ssl) {
-    if (summary.security.isUntrusted) {
-      document.querySelector(".sslStatus").classList.add("sad");
-      document.querySelector(".sslTrusted").classList.add("sad");
-    } else {
-      document.querySelector(".sslStatus").classList.add("happy");
-      document.querySelector(".sslTrusted").classList.add("happy");
+  function addClass(selector, className) {
+    for (let e of document.querySelectorAll(selector)) {
+      e.classList.add(className);
     }
   }
 
-  li = document.querySelector(".isDomainMismatch");
+  mood = summary.plugins.length > 0 ? "sad" : "happy";
+  addClass(".plugins", mood);
+
+  mood = summary.quirksMode ? "sad" : "happy";
+  addClass(".quirksmode", mood);
+
+  mood = summary.messageCount.error > 0 ? "sad" : "happy";
+  addClass(".errors", mood);
+
+  if (summary.messageCount.warning == 0)
+    addClass(".warnings", "happy");
+
+  if (summary.security.ssl) {
+    mood = summary.security.isUntrusted ? "sad" : "happy";
+    addClass(".sslStatus, .sslTrusted", mood);
+  }
+
   if (summary.security.isDomainMismatch)
-    li.classList.add("sad");
+    addClass(".isDomainMismatch", "sad");
 
-  li = document.querySelector(".isNotValidAtThisTime");
   if (summary.security.isNotValidAtThisTime)
-    li.classList.add("sad");
+    addClass("isNotValidAtThisTime", "sad");
 
+  mood = summary.hasMixedContent ? "sad" : "happy";
+  addClass(".hasMixedContent", mood);
 
 }
 
@@ -140,34 +131,143 @@ function requireValue(n, path, value) {
 
 function buildTimeline() {
   let t = summary.timing;
+  let blocks = [];
 
-  // domainLookupStart - domainLookupEnd;
-  let domainLookupStart = t.domainLookupStart - t.fetchStart;
-  let domainLookupDuration = t.domainLookupEnd - t.domainLookupStart;
+  let start = t.navigationStart;
 
-  // connectStart - connectEnd;
-  let connectStart = t.connectStart - t.fetchStart;
-  let connectDuration = t.connectEnd - t.connectStart;
-
-  // secureConnectionStart;
-  let secureConnectionStart = undefined;
-  if (t.secureConnectionStart) {
-    secureConnectionStart = t.secureConnectionStart - t.fetchStart;
+  if (t.unloadEventStart != 0) {
+    blocks.push({
+      name: "unload",
+      className: "tl-unload",
+      duration: t.unloadEventEnd - t.unloadEventStart,
+      start: t.unloadEventStart - start
+    });
   }
 
-  // requestStart
-  let requestStart = t.requestStart - t.fetchStart;
+  if (t.redirectStart != 0) {
+    blocks.push({
+      name: "redirect",
+      className: "tl-redirect",
+      duration: t.redirectEnd - t.redirectStart,
+      start: t.redirectStart - start
+    });
+  }
 
-  // responseStart - responseEnd
-  let responseStart = t.responseStart - t.fetchStart;
-  let responseDuration = t.responseEnd - t.responseStart;
+  blocks.push({
+    name: "fetchStart",
+    className: "tl-fetchStart",
+    start: t.fetchStart - start
+  });
 
-  /*
-  domLoading;
-  domInteractive;
-  domContentLoadedEventStart - domContentLoadedEventEnd;
-  domComplete;
-  loadEventStart - loadEventEnd;
-  */
+  blocks.push({
+    name: "domainLookup",
+    className: "tl-domainLookup",
+    duration: t.domainLookupEnd - t.domainLookupStart,
+    start: t.domainLookupStart - start
+  });
+
+  blocks.push({
+    name: "connect",
+    className: "tl-connect",
+    duration: t.connectEnd - t.connectStart,
+    start: t.connectStart - start
+  });
+
+  blocks.push({
+    name: "request",
+    className: "tl-request",
+    duration: t.responseStart - t.requestStart,
+    start: t.requestStart - start
+  });
+
+  blocks.push({
+    name: "response",
+    className: "tl-response",
+    duration: t.responseEnd - t.responseStart,
+    start: t.responseStart - start
+  });
+
+  blocks.push({
+    name: "DOM loading",
+    className: "tl-domloading",
+    duration: t.domInteractive - t.domLoading,
+    start: t.domLoading - start
+  });
+
+  blocks.push({
+    name: "DOM interactive",
+    className: "tl-dominteractive",
+    duration: t.domContentLoadedEventStart - t.domInteractive,
+    start: t.domInteractive - start
+  });
+
+  blocks.push({
+    name: "DOM content loaded event",
+    className: "tl-domcontentloaded",
+    duration: t.domContentLoadedEventEnd - t.domContentLoadedEventStart,
+    start: t.domContentLoadedEventStart - start
+  });
+
+  blocks.push({
+    name: "DOM complete",
+    className: "tl-domcomplete",
+    duration: t.domComplete - t.domContentLoadedEventEnd,
+    start: t.domContentLoadedEventEnd - start,
+  });
+
+  let totalDuration;
+
+  if (t.loadEventStart) {
+    blocks.push({
+      name: "DOM load event",
+      className: "tl-domloadevent",
+      duration: t.loadEventEnd - t.loadEventStart,
+      start: t.loadEventStart - start
+    });
+    totalDuration = t.loadEventEnd - t.navigationStart;
+  } else {
+    totalDuration = t.domComplete - t.navigationStart;
+  }
+
+  summary.totalDuration = totalDuration;
+
+  let fragment = document.createDocumentFragment();
+
+  let labels = document.createElement("div");
+  labels.className = "labels";
+  fragment.appendChild(labels);
+
+  let bars = document.createElement("div");
+  bars.className = "bars";
+  fragment.appendChild(bars);
+
+  for (let b of blocks) {
+    let start_r = (100 * b.start / totalDuration) + "%";
+    if ("duration" in b) {
+      let label = document.createElement("label");
+      label.textContent = b.name + " (" + b.duration + "ms)";
+      labels.appendChild(label);
+
+      let duration_r = (100 * b.duration / totalDuration) + "%";
+      let div = document.createElement("div");
+      div.className = "bar " + b.className;
+      div.setAttribute("style","width:" + duration_r + ";margin-left:" + start_r);
+      bars.appendChild(div);
+    } else {
+      let label = document.createElement("label");
+      label.textContent = b.name + " (at " + b.start + "ms)";
+      labels.appendChild(label);
+
+      let div = document.createElement("div");
+      div.className = "point " + b.className;
+      div.setAttribute("style","margin-left:" + start_r);
+      bars.appendChild(div);
+    }
+  }
+
+  document.querySelector("#timeline").appendChild(fragment);
 }
 
+
+function showTooltip(what) {
+}

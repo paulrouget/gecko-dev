@@ -22,13 +22,30 @@
     <span id="throbber">loading…</span>
 
     <!-- FIXME: strategy if JSON format change -->
+    <header>
+      <div class="titleAndURL">
+        <p template='{"type":"textContent","path":"title"}'></p>
+        <p template='{"type":"textContent","path":"url"}'></p>
+      </div>
+      <div id="controls">
+        <button>refresh</button>
+        <button>print</button>
+        <button>export</button>
+        <button>JSON</button>
+      </div>
 
-    <div id="timeline"></div>
+    </header>
+
+
 
     <main>
+      <section>
+        <h1 class="header-timeline">Page loaded in <span class="value" template='{"type":"textContent","path":"totalDuration"}'></span> milliseconds</h1>
+        <div id="timeline"></div>
+      </section>
 
       <section>
-        <h1>General</h1>
+        <h1 class="header-general">General</h1>
         <ul>
           <li class="characterset">
             <span class="name">Character Set:</span>
@@ -46,59 +63,22 @@
       </section>
 
       <section>
-        <h1>Resources</h1>
-        <ul>
-          <li class="scripts">
-            <span class="name">Scripts:</span>
-            <span class="value" template='{"type":"textContent","path":"scripts.length"}'></span>
-          </li>
-          <li class="styles">
-            <span class="name">Styles:</span>
-            <span class="value" template='{"type":"textContent","path":"styles.length"}'></span>
-          </li>
-          <li class="plugins">
-            <span class="name">Plugins:</span>
-            <span class="value" template='{"type":"textContent","path":"plugins.length"}'></span>
-          </li>
-          <li class="docshells">
-            <span class="name">Documents:</span>
-            <span class="value" template='{"type":"textContent","path":"docShellCount"}'></span>
-          </li>
-          <li class="fonts">
-            <span class="name">Fonts:</span>
-            <span class="value" template='{"type":"textContent","path":"fonts.length"}'></span>
-          </li>
-        </ul>
-      </section>
-
-      <section>
-        <h1>Troubleshooting</h1>
-        <ul>
-          <li class="quirksmode">
-            <span class="name">Quirks mode:</span>
-            <span class="value" template='{"type":"textContent","path":"quirksMode"}'></span>
-          </li>
-          <li class="errors">
-            <span class="name">Errors:</span>
-            <span class="value" template='{"type":"textContent","path":"messageCount.error"}'></span>
-          </li>
-          <li class="warnings">
-            <span class="name">Warnings:</span>
-            <span class="value" template='{"type":"textContent","path":"messageCount.warning"}'></span>
-          </li>
-        </ul>
-      </section>
-
-
-      <section>
-        <h1>Security</h1>
+        <h1 class="header-security">Security</h1>
         <ul class="securityNoSSL">
+          <li class="hasMixedContent">
+            <span class="name">Mixed content:</span>
+            <span class="value" template='{"type":"textContent","path":"hasMixedContent"}'></span>
+          </li>
           <li class="sslStatus">
             <span class="name">SSL:</span>
             <span class="value">no</span>
           </li>
         </ul>
         <ul class="securityHasSSL">
+          <li class="hasMixedContent">
+            <span class="name">Mixed content:</span>
+            <span class="value" template='{"type":"textContent","path":"hasMixedContent"}'></span>
+          </li>
           <li class="sslStatus">
             <span class="name">SSL:</span>
             <span class="value">yes</span>
@@ -127,7 +107,53 @@
       </section>
 
       <section>
-        <h1>Display</h1>
+        <h1 class="header-troubleshooting">Troubleshooting</h1>
+        <ul>
+          <li class="quirksmode">
+            <span class="name">Quirks mode:</span>
+            <span class="value" template='{"type":"textContent","path":"quirksMode"}'></span>
+          </li>
+          <li class="errors">
+            <span class="name">Errors:</span>
+            <span class="value" template='{"type":"textContent","path":"messageCount.error"}'></span>
+          </li>
+          <li class="warnings">
+            <span class="name">Warnings:</span>
+            <span class="value" template='{"type":"textContent","path":"messageCount.warning"}'></span>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h1 class="header-resources">Resources</h1>
+        <ul>
+          <li class="scripts">
+            <span class="name">Scripts:</span>
+            <span class="value" template='{"type":"textContent","path":"scripts.length"}'></span>
+          </li>
+          <li class="styles">
+            <span class="name">Styles:</span>
+            <span class="value" template='{"type":"textContent","path":"styles.length"}'></span>
+          </li>
+          <li class="plugins">
+            <span class="name">Plugins:</span>
+            <span class="value" template='{"type":"textContent","path":"plugins.length"}'></span>
+          </li>
+          <li class="docshells">
+            <span class="name">Documents:</span>
+            <span class="value" template='{"type":"textContent","path":"docShellCount"}'></span>
+          </li>
+          <li class="fonts">
+            <span class="name">Fonts:</span>
+            <a href="#" onclick='showTooltip("fonts")'>
+              <span class="value" template='{"type":"textContent","path":"fonts.length"}'></span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h1 class="header-display">Display</h1>
         <div class="dimensionAndList">
           <div class="dimensionBox">
             <p class="dimensionLabel width">
@@ -153,7 +179,7 @@
       </section>
 
       <section>
-        <h1>Viewport</h1>
+        <h1 class="header-viewport">Viewport</h1>
           <div class="dimensionAndList">
           <div class="dimensionBox">
             <p class="dimensionLabel width">
