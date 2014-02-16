@@ -275,7 +275,7 @@ Tools.pagesummary = {
   ordinal: 1,
   visibilityswitch: "devtools.pagesummary.enabled",
   icon: "chrome://browser/skin/devtools/tool-profiler.png",
-  url: "chrome://browser/content/devtools/pagesummary/pagesummary.xhtml",
+  url: "chrome://browser/content/devtools/pagesummary/panel.xul",
   label: "pagesummary",
   tooltip: "pagesummary tooltip",
   inMenu: true,

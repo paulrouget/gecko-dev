@@ -57,7 +57,9 @@
           </li>
           <li class="metanodes">
             <span class="name">Meta nodes:</span>
-            <span class="value" template='{"type":"textContent","path":"metaNodes.length"}'></span>
+            <a href="#" onclick='showTooltip(event)' data-details="metaNodes">
+              <span class="value" template='{"type":"textContent","path":"metaNodes.length"}'></span>
+            </a>
           </li>
         </ul>
       </section>
@@ -81,7 +83,9 @@
           </li>
           <li class="sslStatus">
             <span class="name">SSL:</span>
-            <span class="value">yes</span>
+            <a href="#" onclick='showTooltip(event)' data-details="security">
+              <span class="value">yes</span>
+            </a>
           </li>
           <li class="sslTrusted">
             <span class="name">Trusted:</span>
@@ -129,23 +133,31 @@
         <ul>
           <li class="scripts">
             <span class="name">Scripts:</span>
-            <span class="value" template='{"type":"textContent","path":"scripts.length"}'></span>
+            <a href="#" onclick='showTooltip(event)' data-details="scripts">
+              <span class="value" template='{"type":"textContent","path":"scripts.length"}'></span>
+            </a>
           </li>
           <li class="styles">
             <span class="name">Styles:</span>
-            <span class="value" template='{"type":"textContent","path":"styles.length"}'></span>
+            <a href="#" onclick='showTooltip(event)' data-details="styles">
+              <span class="value" template='{"type":"textContent","path":"styles.length"}'></span>
+            </a>
           </li>
           <li class="plugins">
             <span class="name">Plugins:</span>
-            <span class="value" template='{"type":"textContent","path":"plugins.length"}'></span>
+            <a href="#" onclick='showTooltip(event)' data-details="plugins">
+              <span class="value" template='{"type":"textContent","path":"plugins.length"}'></span>
+            </a>
           </li>
           <li class="docshells">
             <span class="name">Documents:</span>
-            <span class="value" template='{"type":"textContent","path":"docShellCount"}'></span>
+            <a href="#" onclick='showTooltip(event)' data-details="docShells">
+              <span class="value" template='{"type":"textContent","path":"docShellCount"}'></span>
+            </a>
           </li>
           <li class="fonts">
             <span class="name">Fonts:</span>
-            <a href="#" onclick='showTooltip("fonts")'>
+            <a href="#" onclick='showTooltip(event)' data-details="fonts">
               <span class="value" template='{"type":"textContent","path":"fonts.length"}'></span>
             </a>
           </li>

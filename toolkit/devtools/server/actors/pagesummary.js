@@ -40,9 +40,13 @@ let PageSummary = protocol.ActorClass({
 
     let onLoad = () => {
       window.removeEventListener("load", onLoad);
-      this._getSummaryAfterLoad().then(json => {
-        return deferred.resolve(json);
-      });
+      // Next tick, because we want onload to be over to get
+      // performance.timing
+      Services.tm.mainThread.dispatch(() => {
+        this._getSummaryAfterLoad().then(json => {
+          return deferred.resolve(json);
+        });
+      }, 0);
     }
 
     window.addEventListener("load", onLoad);

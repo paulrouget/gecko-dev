@@ -8,6 +8,7 @@ const { Cc, Ci, Cu, Cr } = require("chrome");
 const promise = require("sdk/core/promise");
 const EventEmitter = require("devtools/shared/event-emitter");
 const { PageSummaryFront } = require("devtools/server/actors/pagesummary");
+const { Tooltip } = require("devtools/shared/widgets/Tooltip");
 
 function PageSummaryPanel(iframeWindow, toolbox) {
   this.panelWin = iframeWindow;
@@ -32,7 +33,21 @@ PageSummaryPanel.prototype = {
 
     return targetPromise
       .then(() => {
-        this.panelWin.start(new PageSummaryFront(this.target.client, this.target.form));
+        let deferred = promise.defer();
+
+        this.tooltip = new Tooltip(this.panelWin.document);
+        let frame = this.panelWin.document.querySelector("iframe");
+        if (frame.contentWindow.document.readyState == "complete") {
+          deferred.resolve(frame);
+        } else {
+          frame.contentWindow.addEventListener("load", function onFrameLoaded() {
+            deferred.resolve(frame);
+          }, false);
+        }
+        return deferred.promise;
+      })
+      .then((frame) => {
+        frame.contentWindow.start(new PageSummaryFront(this.target.client, this.target.form), this);
       })
       .then(() => {
         this.isReady = true;

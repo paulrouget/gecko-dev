@@ -6,9 +6,10 @@
 const { classes: Cc, interfaces: Ci, utils: Cu, results: Cr } = Components;
 const require = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools.require;
 
-let summary;
+let summary, panel;
 
-window.start = function(front) {
+window.start = function(front, toolboxPanel) {
+  panel = toolboxPanel;
   front.getSummary().then(aSummary => {
     summary = aSummary;
 
@@ -269,5 +270,9 @@ function buildTimeline() {
 }
 
 
-function showTooltip(what) {
+function showTooltip(e) {
+  let a = e.target.parentNode;
+  let details = a.dataset.details;
+  panel.tooltip.setVariableContent(null, summary[details], {onlyEnumVisible:true});
+  panel.tooltip.show(a);
 }
