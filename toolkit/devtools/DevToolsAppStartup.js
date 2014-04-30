@@ -13,15 +13,15 @@ const { classes: Cc, interfaces: Ci, utils: Cu } = Components;
 const REMOTE_ENABLED_PREF = "devtools.debugger.remote-enabled";
 const UNIX_SOCKET_PREF = "devtools.debugger.unix-domain-socket";
 const REMOTE_PORT_PREF = "devtools.debugger.remote-port";
+const DBG_CTRL_CID = "@mozilla.org/devtools/DebuggerServerController;1";
 
 Cu.import("resource://gre/modules/XPCOMUtils.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 
-XPCOMUtils.defineLazyModuleGetter(this,
-    "DebuggerServer",
-    "resource://gre/modules/devtools/dbg-server.jsm");
-
 function DevToolsAppStartup() {
+  if (DBG_CTRL_CID in Cc) {
+    this.debuggerServerController = Cc[DBG_CTRL_CID].getService(Ci.nsIDebuggerServerController);
+  }
 }
 
 DevToolsAppStartup.prototype = {
@@ -55,7 +55,7 @@ DevToolsAppStartup.prototype = {
     // If the app didn't expose a debugger controller component, we don't
     // support the -start-debugger-server option.
 
-    if (DebuggerServer.controller) {
+    if (this.debuggerServerController) {
       str += "  -start-debugger-server [<port or unix domain socket path>]";
       if (this.dbgPortOrPath) {
         str += " (default: " + this.dbgPortOrPath + ")";
@@ -67,7 +67,7 @@ DevToolsAppStartup.prototype = {
   },
 
   handle: function(cmdLine) {
-    if (!DebuggerServer.controller) {
+    if (!this.debuggerServerController) {
       // This app doesn't expose a debugger controller.
       // We can't handle the -start-debugger-server option
       // or the remote-enable pref.
@@ -97,7 +97,7 @@ DevToolsAppStartup.prototype = {
     if (startDebuggerServerBecauseCmdLine ||
         Services.prefs.getBoolPref(REMOTE_ENABLED_PREF)) {
       if (this.dbgPortOrPath) {
-        DebuggerServer.controller.start(this.dbgPortOrPath);
+        this.debuggerServerController.start(this.dbgPortOrPath);
       } else {
         dump("Can't start debugger: no port or path specified\n");
       }
@@ -115,9 +115,9 @@ DevToolsAppStartup.prototype = {
       switch (data) {
         case REMOTE_ENABLED_PREF:
           if (Services.prefs.getBoolPref(data)) {
-            DebuggerServer.controller.start(this.dbgPortOrPath);
+            this.debuggerServerController.start(this.dbgPortOrPath);
           } else {
-            DebuggerServer.controller.stop();
+            this.debuggerServerController.stop();
           }
         break;
         case UNIX_SOCKET_PREF:

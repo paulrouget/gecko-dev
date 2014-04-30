@@ -152,7 +152,6 @@ var DebuggerServer = {
   _listener: null,
   _initialized: false,
   _transportInitialized: false,
-  _controller: null,
   xpcInspector: null,
   // Number of currently open TCP connections.
   _socketConnections: 0,
@@ -164,17 +163,6 @@ var DebuggerServer = {
   LONG_STRING_LENGTH: 10000,
   LONG_STRING_INITIAL_LENGTH: 1000,
   LONG_STRING_READ_LENGTH: 65 * 1024,
-
-  get controller() {
-    if (!this._controller) {
-      let cid = "@mozilla.org/devtools/DebuggerServerController;1";
-      if (cid in Cc) {
-        this._controller = Cc[cid].createInstance(Ci.nsIDebuggerServerController);
-        this._controller.init(this);
-      }
-    }
-    return this._controller;
-  },
 
   /**
    * A handler function that prompts the user to accept or decline the incoming

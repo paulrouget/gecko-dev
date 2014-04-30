@@ -16,23 +16,43 @@ XPCOMUtils.defineLazyModuleGetter(this,
      "SystemAppProxy",
      "resource://gre/modules/SystemAppProxy.jsm");
 
+XPCOMUtils.defineLazyModuleGetter(this,
+    "DebuggerServer",
+    "resource://gre/modules/devtools/dbg-server.jsm");
+
 function DebuggerServerController() {
+  Services.obs.addObserver(this, "mozsettings-changed", false);
+  Services.obs.addObserver(this, "debugger-server-started", false);
+  Services.obs.addObserver(this, "debugger-server-stopped", false);
+  Services.obs.addObserver(this, "xpcom-shutdown", false);
+
+  // Fake a settings change for the debugger.remote-mode setting
+  Settings.createLock().get("debugger.remote-mode", {
+    handle: (key, value) => {
+      this.observe(null,
+                   "mozsettings-changed",
+                   JSON.stringify({key: key, value: value}));
+    }
+  });
 }
 
 DebuggerServerController.prototype = {
   classID: Components.ID("{9390f6ac-7914-46c6-b9d0-ccc7db550d8c}"),
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIDebuggerServerController, Ci.nsIObserver]),
 
-  init: function init(debuggerServer) {
-    this.debugger = debuggerServer;
-    Services.obs.addObserver(this, "mozsettings-changed", false);
-    Services.obs.addObserver(this, "debugger-server-started", false);
-    Services.obs.addObserver(this, "debugger-server-stopped", false);
-    Services.obs.addObserver(this, "xpcom-shutdown", false);
+  setCustomDebuggerServer: function(debuggerServer) {
+    this._debugger = debuggerServer;
+  },
+
+  get debugger() {
+    if (!this._debugger) {
+      this._debugger = DebuggerServer;
+    }
+    return this._debugger;
   },
 
   uninit: function uninit() {
-    this.debugger = null;
+    this._debugger = null;
     Services.obs.removeObserver(this, "mozsettings-changed");
     Services.obs.removeObserver(this, "debugger-server-started");
     Services.obs.removeObserver(this, "debugger-server-stopped");

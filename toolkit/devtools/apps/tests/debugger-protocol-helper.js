@@ -23,7 +23,8 @@ function connect(onDone) {
     }
   };
   Services.obs.addObserver(observer, "debugger-server-started", false);
-  DebuggerServer.controller.start(6000);
+  Cc["@mozilla.org/devtools/DebuggerServerController;1"]
+    .getService(Ci.nsIDebuggerServerController).start(6000);
 }
 
 function startClient(transport, onDone) {

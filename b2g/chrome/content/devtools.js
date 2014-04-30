@@ -61,9 +61,9 @@ let developerHUD = {
     if (this._client)
       return;
 
-    if (!DebuggerServer.initialized) {
-      DebuggerServer.controller.start(null);
-    }
+    // Start a debugger server. Doesn't listen on any socket.
+    Cc["@mozilla.org/devtools/DebuggerServerController;1"]
+      .getService(Ci.nsIDebuggerServerController).start(null);
 
     // We instantiate a local debugger connection so that watchers can use our
     // DebuggerClient to send requests to tab actors (e.g. the consoleActor).

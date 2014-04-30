@@ -127,7 +127,10 @@ BrowserToolboxProcess.prototype = {
       this.debuggerServer.on("connectionchange", this.emit.bind(this));
     }
 
-    this.debuggerServer.controller.start(Prefs.chromeDebuggingPort);
+    let controller = Cc["@mozilla.org/devtools/DebuggerServerController;1"]
+                       .createInstance(Ci.nsIDebuggerServer);
+    controller.setCustomDebuggerServer(this.debuggerServer);
+    controller.start(Prefs.chromeDebuggingPort);
 
     dumpn("Finished initializing the chrome toolbox server.");
     dumpn("Started listening on port: " + Prefs.chromeDebuggingPort);

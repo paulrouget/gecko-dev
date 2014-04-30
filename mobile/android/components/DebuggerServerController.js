@@ -22,22 +22,33 @@ XPCOMUtils.defineLazyGetter(Strings, "debugger",
 XPCOMUtils.defineLazyGetter(Strings, "browser",
     () => Services.strings.createBundle("chrome://browser/locale/browser.properties"));
 
+XPCOMUtils.defineLazyModuleGetter(this,
+    "DebuggerServer",
+    "resource://gre/modules/devtools/dbg-server.jsm");
+
 function DebuggerServerController() {
+  Services.obs.addObserver(this, "debugger-server-started", false);
+  Services.obs.addObserver(this, "debugger-server-stopped", false);
+  Services.obs.addObserver(this, "xpcom-shutdown", false);
 }
 
 DebuggerServerController.prototype = {
   classID: Components.ID("{f6e8e269-ae4a-4c4a-bf80-fb4164fb072c}"),
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIDebuggerServerController, Ci.nsIObserver]),
 
-  init: function(debuggerServer) {
-    this.debugger = debuggerServer;
-    Services.obs.addObserver(this, "debugger-server-started", false);
-    Services.obs.addObserver(this, "debugger-server-stopped", false);
-    Services.obs.addObserver(this, "xpcom-shutdown", false);
+  setCustomDebuggerServer: function(debuggerServer) {
+    this._debugger = debuggerServer;
+  },
+
+  get debugger() {
+    if (!this._debugger) {
+      this._debugger = DebuggerServer;
+    }
+    return this._debugger;
   },
 
   uninit: function() {
-    this.debugger = null;
+    this._debugger = null;
     Services.obs.removeObserver(this, "debugger-server-started");
     Services.obs.removeObserver(this, "debugger-server-stopped");
     Services.obs.removeObserver(this, "xpcom-shutdown");

@@ -22,37 +22,46 @@ XPCOMUtils.defineLazyGetter(this,
     "l10n",
     () => Services.strings.createBundle("chrome://global/locale/devtools/debugger.properties"));
 
+XPCOMUtils.defineLazyModuleGetter(this,
+    "DebuggerServer",
+    "resource://gre/modules/devtools/dbg-server.jsm");
+
 function DebuggerServerController() {
+  // The remote-enabled pref used to mean that Firefox was allowed
+  // to connect to a debugger server. In other products (b2g, thunderbird,
+  // fennec, metro and webrt) this pref had a different meaning: it runs a
+  // debugger server. We want Firefox Desktop to follow the same rule.
+  //
+  // We don't want to surprise users with this new behavior. So we reset
+  // the remote-enabled pref once.
+
+  if (!Services.prefs.getBoolPref(gPrefMigrated)) {
+    Services.prefs.clearUserPref(gPrefRemoteEnabled);
+    Services.prefs.setBoolPref(gPrefMigrated, true);
+  }
+
+  Services.obs.addObserver(this, "debugger-server-started", false);
+  Services.obs.addObserver(this, "debugger-server-stopped", false);
+  Services.obs.addObserver(this, "xpcom-shutdown", false);
 }
 
 DebuggerServerController.prototype = {
   classID: Components.ID("{f6e8e269-ae4a-4c4a-bf80-fb4164fb072d}"),
   QueryInterface: XPCOMUtils.generateQI([Ci.nsIDebuggerServerController, Ci.nsIObserver]),
 
-  init: function(debuggerServer) {
+  setCustomDebuggerServer: function(debuggerServer) {
+    this._debugger = debuggerServer;
+  },
 
-    this.debugger = debuggerServer;
-
-    // The remote-enabled pref used to mean that Firefox was allowed
-    // to connect to a debugger server. In other products (b2g, thunderbird,
-    // fennec, metro and webrt) this pref had a different meaning: it runs a
-    // debugger server. We want Firefox Desktop to follow the same rule.
-    //
-    // We don't want to surprise users with this new behavior. So we reset
-    // the remote-enabled pref once.
-
-    if (!Services.prefs.getBoolPref(gPrefMigrated)) {
-      Services.prefs.clearUserPref(gPrefRemoteEnabled);
-      Services.prefs.setBoolPref(gPrefMigrated, true);
+  get debugger() {
+    if (!this._debugger) {
+      this._debugger = DebuggerServer;
     }
-
-    Services.obs.addObserver(this, "debugger-server-started", false);
-    Services.obs.addObserver(this, "debugger-server-stopped", false);
-    Services.obs.addObserver(this, "xpcom-shutdown", false);
+    return this._debugger;
   },
 
   uninit: function() {
-    this.debugger = null;
+    this._debugger = null;
     Services.obs.removeObserver(this, "debugger-server-started");
     Services.obs.removeObserver(this, "debugger-server-stopped");
     Services.obs.removeObserver(this, "xpcom-shutdown");

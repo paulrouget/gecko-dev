@@ -30,7 +30,8 @@ exports.items = [
       }
     ],
     exec: function(args, context) {
-      DebuggerServer.controller.start(args.port);
+      Cc["@mozilla.org/devtools/DebuggerServerController;1"]
+        .getService(Ci.nsIDebuggerServerController).start(args.port);
 
       if (!DebuggerServer._listener) {
         return gcli.lookup("listenFailed");

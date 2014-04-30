@@ -4,10 +4,10 @@
 
 #include "nsISupports.idl"
 
-[scriptable, uuid(8ac35a92-0741-4ec8-9444-774b9ba19a63)]
+[scriptable, uuid(8ac35a92-0741-4ec8-9444-774b9ba19a64)]
 interface nsIDebuggerServerController: nsISupports
 {
-  void init(in jsval debugger);
+  void setCustomDebuggerServer(in jsval debugger);
   void start(in string portOrPath);
   void stop();
 };
