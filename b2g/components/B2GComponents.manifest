@@ -92,3 +92,6 @@ contract @mozilla.org/commandlinehandler/general-startup;1?type=b2goop {e30b0e13
 category command-line-handler m-b2goop @mozilla.org/commandlinehandler/general-startup;1?type=b2goop
 #endif
 
+# DebuggerServerController.js
+component {9390f6ac-7914-46c6-b9d0-ccc7db550d8c} DebuggerServerController.js
+contract @mozilla.org/devtools/DebuggerServerController;1 {9390f6ac-7914-46c6-b9d0-ccc7db550d8c}
