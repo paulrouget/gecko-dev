@@ -185,17 +185,19 @@ exports.AppManager = AppManager = {
     if (value != this.selectedProject) {
       this._selectedProject = value;
 
-      if (value) {
+      if (this.selectedProject) {
         AppManager.console.log("New project selected: " + this.selectedProject.name);
+        if (this.selectedProject.type == "runtimeApp") {
+          this.runRuntimeApp();
+        } else {
+          this.validateProject(this.selectedProject);
+        }
       } else {
         AppManager.console.log("No project selected");
       }
 
       this.update("project");
-      if (this.selectedProject &&
-          this.selectedProject.type == "runtimeApp") {
-        this.runRuntimeApp();
-      }
+
       this.checkIfProjectIsRunning();
     }
   },
@@ -283,7 +285,7 @@ exports.AppManager = AppManager = {
     if (!project ||
         !this._listTabsResponse ||
         (project.type != "packaged" && project.type != "hosted")) {
-      AppManager.console.error("Can't install project. Unkown type of project.");
+      AppManager.console.error("Can't install project. Unknown type of project.");
       return Promise.reject("Can't install");
     }
 

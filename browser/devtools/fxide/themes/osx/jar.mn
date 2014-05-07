@@ -6,6 +6,6 @@ fxide.jar:
 % skin fxide classic/1.0 %skin/
   skin/fxide.css            (../shared/fxide.css)
   skin/icons.png            (../shared/icons.png)
-  skin/lense.css            (../shared/lense.css)
+  skin/details.css          (../shared/details.css)
   skin/newapp.css           (../shared/newapp.css)
   skin/throbber.svg         (../shared/throbber.svg)

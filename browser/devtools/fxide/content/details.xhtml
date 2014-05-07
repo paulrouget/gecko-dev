@@ -12,17 +12,17 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta charset="utf8"/>
-    <link rel="stylesheet" href="chrome://fxide/skin/lense.css" type="text/css"/>
-    <script type="application/javascript;version=1.8" src="chrome://fxide/content/lense.js"></script>
+    <link rel="stylesheet" href="chrome://fxide/skin/details.css" type="text/css"/>
+    <script type="application/javascript;version=1.8" src="chrome://fxide/content/details.js"></script>
   </head>
   <body>
 
     <div id="toolbar">
-      <button onclick="removeProject()">&lense_removeProject_button;</button>
+      <button onclick="removeProject()">&details_removeProject_button;</button>
       <p id="validation_status">
-        <span class="valid">&lense_valid_header;</span>
-        <span class="warning">&lense_warning_header;</span>
-        <span class="error">&lense_error_header;</span>
+        <span class="valid">&details_valid_header;</span>
+        <span class="warning">&details_warning_header;</span>
+        <span class="error">&details_error_header;</span>
       </p>
     </div>
 
@@ -35,13 +35,13 @@
     </header>
 
     <main>
-      <h3 id="descriptionHeader">&lense_description;</h3>
+      <h3 id="descriptionHeader">&details_description;</h3>
       <p id="description"></p>
 
-      <h3 id="locationHeader">&lense_location;</h3>
+      <h3 id="locationHeader">&details_location;</h3>
       <p id="location"></p>
 
-      <h3 id="manifestURLHeader">&lense_manifestURL;</h3>
+      <h3 id="manifestURLHeader">&details_manifestURL;</h3>
       <p id="manifestURL"></p>
     </main>
 

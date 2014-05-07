@@ -169,7 +169,7 @@ const AppProjects = {
     }
     let existingProject = this.get(folder.path);
     if (existingProject) {
-      return Promise.reject("Already added");
+      return promise.reject("Already added");
     }
     let project = {
       type: "packaged",
@@ -193,7 +193,7 @@ const AppProjects = {
   addHosted: function(manifestURL) {
     let existingProject = this.get(manifestURL);
     if (existingProject) {
-      return Promise.reject("Already added");
+      return promise.reject("Already added");
     }
     let project = {
       type: "hosted",

@@ -150,7 +150,7 @@
   </popupset>
 
   <vbox flex="1" id="body">
-    <iframe id="lense" flex="1" hidden="true" src="lense.xhtml"/>
+    <iframe id="details" flex="1" hidden="true" src="details.xhtml"/>
   </vbox>
 
   <splitter hidden="true" class="devtools-horizontal-splitter" orient="vertical"/>

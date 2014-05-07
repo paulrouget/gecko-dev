@@ -8,5 +8,5 @@ fxide.jar:
     content/fxide.js                  (fxide.js)
     content/newapp.xul                (newapp.xul)
     content/newapp.js                 (newapp.js)
-    content/lense.xhtml               (lense.xhtml)
-    content/lense.js                  (lense.js)
+    content/details.xhtml             (details.xhtml)
+    content/details.js                (details.js)
