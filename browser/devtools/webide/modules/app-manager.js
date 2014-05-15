@@ -92,6 +92,7 @@ exports.AppManager = AppManager = {
         this._listenToApps();
         this._listTabsResponse = response;
         this._getRunningApps();
+        this.update("list-tabs-response");
       });
     }
 
@@ -271,7 +272,7 @@ exports.AppManager = AppManager = {
 
   disconnectRuntime: function() {
     if (this.connection.status != Connection.Status.CONNECTED) {
-      return promise.reject("Already disconnected");
+      return promise.resolve();
     }
     let deferred = promise.defer();
     this.connection.once(Connection.Events.DISCONNECTED, () => deferred.resolve());

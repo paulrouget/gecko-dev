@@ -50,19 +50,20 @@ let UI = {
     this.onfocus = this.onfocus.bind(this);
     window.addEventListener("focus", this.onfocus, true);
 
-    try {
+    AppProjects.load().then(() => {
       let lastProjectLocation = Services.prefs.getCharPref("devtools.webide.lastprojectlocation");
-      AppProjects.load().then(() => {
+      if (lastProjectLocation) {
         let lastProject = AppProjects.get(lastProjectLocation);
         if (lastProject) {
           AppManager.selectedProject = lastProject;
         } else {
           AppManager.selectedProject = null;
         }
-      });
-    } catch(e) {
-      AppManager.selectedProject = null;
-    }
+      } else {
+        AppManager.selectedProject = null;
+      }
+      Services.obs.notifyObservers(null, "devtools-webide-ready", null);
+    });
   },
 
   uninit: function() {
