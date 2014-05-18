@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <meta charset="utf8">
+    <title></title>
+
+    <script type="application/javascript" src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js"></script>
+    <script type="application/javascript" src="chrome://mochikit/content/chrome-harness.js"></script>
+    <script type="application/javascript;version=1.8" src="head.js"></script>
+    <link rel="stylesheet" type="text/css" href="chrome://mochikit/content/tests/SimpleTest/test.css">
+  </head>
+
+  <body>
+
+    <script type="application/javascript;version=1.8">
+      window.onload = function() {
+        SimpleTest.waitForExplicitFinish();
+
+        const {WebIDEAddonManager} = require("devtools/webide-addons");
+        const {Devices} = Cu.import("resource://gre/modules/devtools/Devices.jsm");
+        const {AppManager} = require("devtools/app-manager");
+        const {Simulator} = Cu.import("resource://gre/modules/devtools/Simulator.jsm");
+
+        let adbAddonsInstalled = promise.defer();
+        Devices.on("addon-status-updated", function onUpdate1() {
+          Devices.off("addon-status-updated", onUpdate1);
+          adbAddonsInstalled.resolve();
+        });
+
+        function onSimulatorInstalled(version) {
+          let deferred = promise.defer();
+          Simulator.on("register", function onUpdate() {
+            if (Simulator.getByVersion("Firefox OS " + version)) {
+              Simulator.off("register", onUpdate);
+              nextTick().then(deferred.resolve);
+            }
+          });
+          return deferred.promise;
+        }
+
+        function onAllSimulatorInstalled() {
+          let deferred = promise.defer();
+          Simulator.on("register", function onUpdate() {
+            if (Simulator.getByVersion("Firefox OS 1.0") &&
+                Simulator.getByVersion("Firefox OS 2.0") &&
+                Simulator.getByVersion("Firefox OS 3.0")) {
+              Simulator.off("register", onUpdate);
+              nextTick().then(deferred.resolve);
+            }
+          });
+          return deferred.promise;
+        }
+
+        function installSimulatorFromUI(doc, version) {
+          let li = doc.querySelector("li[target=\"" + version + "\"].uninstalled");
+          li.querySelector("button").click();
+          return onSimulatorInstalled(version);
+        }
+
+        function uninstallSimulatorFromUI(doc, target) {
+          let deferred = promise.defer();
+          Simulator.on("unregister", function onUpdate() {
+            nextTick().then(() => {
+              let li = doc.querySelector("li[target=\"" + target + "\"].uninstalled");
+              if (li) {
+                Simulator.off("unregister", onUpdate);
+                deferred.resolve();
+              }
+            })
+          });
+          let li = doc.querySelector("li[target=\"" + target + "\"].installed");
+          li.querySelector("button").click();
+          return deferred.promise;
+        }
+
+        function uninstallADBFromUI(doc, adb) {
+          let deferred = promise.defer();
+          Devices.on("addon-status-updated", function onUpdate() {
+            nextTick().then(() => {
+              let li = doc.querySelector('li[target="adb"].uninstalled');
+              if (li) {
+                Devices.off("addon-status-updated", onUpdate);
+                deferred.resolve();
+              }
+            })
+          });
+          let li = doc.querySelector('li[target="adb"].installed');
+          li.querySelector("button").click();
+          return deferred.promise;
+        }
+
+        Task.spawn(function* () {
+
+          ok(!Devices.helperAddonInstalled, "Helper not installed");
+
+          let win = yield openWebIDE(true);
+
+          yield adbAddonsInstalled.promise;
+
+          ok(Devices.helperAddonInstalled, "Helper has been auto-installed");
+
+          yield nextTick();
+
+          WebIDEAddonManager.installSimulator("1.0");
+
+          yield onSimulatorInstalled("1.0");
+
+          win.Cmds.showAddons();
+
+          let frame = win.document.querySelector("#addons");
+          let lis;
+
+          lis = frame.contentWindow.document.querySelectorAll("li");
+          is(lis.length, 4, "4 addons listed");
+
+          lis = frame.contentWindow.document.querySelectorAll("li.installed");
+          is(lis.length, 2, "2 addons installed");
+
+          let addonDoc = frame.contentWindow.document;
+          lis = addonDoc.querySelectorAll("li.uninstalled");
+          is(lis.length, 2, "2 addons uninstalled");
+          
+          yield installSimulatorFromUI(addonDoc, "2.0");
+          
+          yield installSimulatorFromUI(addonDoc, "3.0");
+
+          yield win.Cmds.showRuntimePanel();
+
+          let panelNode = win.document.querySelector("#runtime-panel");
+          let items;
+
+          items = panelNode.querySelectorAll(".runtime-panel-item-usbruntime");
+          is(items.length, 1, "Found one runtime button");
+
+          items = panelNode.querySelectorAll(".runtime-panel-item-simulator");
+          is(items.length, 3, "Found 3 simulators button");
+
+          yield uninstallSimulatorFromUI(addonDoc, "1.0");
+          yield uninstallSimulatorFromUI(addonDoc, "2.0");
+          yield uninstallSimulatorFromUI(addonDoc, "3.0");
+          items = panelNode.querySelectorAll(".runtime-panel-item-simulator");
+          is(items.length, 0, "No simulator listed");
+
+          yield uninstallADBFromUI(addonDoc, "adb");
+
+          items = panelNode.querySelectorAll(".runtime-panel-item-usbruntime");
+          is(items.length, 0, "No usb runtime listed");
+
+          let w = addonDoc.querySelector(".warning");
+          ok(w, "Warning about missing ADB present");
+
+          yield closeWebIDE(win);
+
+          SimpleTest.finish();
+
+        });
+      }
+
+
+    </script>
+  </body>
+</html>

@@ -12,12 +12,19 @@ Cu.import("resource://gre/modules/Task.jsm");
 
 const {devtools} = Cu.import("resource://gre/modules/devtools/Loader.jsm", {});
 const {require} = devtools;
+const {Devices} = Cu.import("resource://gre/modules/devtools/Devices.jsm");
 const {Services} = Cu.import("resource://gre/modules/Services.jsm");
 const {AppProjects} = require("devtools/app-manager/app-projects");
 const {Connection} = require("devtools/client/connection-manager");
 const {AppManager} = require("devtools/app-manager");
 const {Promise: promise} = Cu.import("resource://gre/modules/Promise.jsm", {});
 const ProjectEditor = require("projecteditor/projecteditor");
+const {WebIDEAddonManager} = require("devtools/webide-addons");
+const {GetTemplatesJSON, GetAddonsJSON} = require("devtools/remote-resources");
+
+// download some JSON early.
+GetTemplatesJSON(true);
+GetAddonsJSON(true);
 
 const Strings = Services.strings.createBundle("chrome://webide/content/webide.properties");
 
@@ -51,19 +58,28 @@ let UI = {
     window.addEventListener("focus", this.onfocus, true);
 
     AppProjects.load().then(() => {
-      let lastProjectLocation = Services.prefs.getCharPref("devtools.webide.lastprojectlocation");
-      if (lastProjectLocation) {
-        let lastProject = AppProjects.get(lastProjectLocation);
-        if (lastProject) {
-          AppManager.selectedProject = lastProject;
-        } else {
-          AppManager.selectedProject = null;
-        }
+      this.openLastProject();
+      Services.obs.notifyObservers(null, "devtools-webide-ready", null);
+    });
+
+    let autoInstallADBHelper = Services.prefs.getBoolPref("devtools.webide.autoinstallADBHelper");
+    if (autoInstallADBHelper && !Devices.helperAddonInstalled) {
+      WebIDEAddonManager.installADB();
+    }
+  },
+
+  openLastProject: function() {
+    let lastProjectLocation = Services.prefs.getCharPref("devtools.webide.lastprojectlocation");
+    if (lastProjectLocation) {
+      let lastProject = AppProjects.get(lastProjectLocation);
+      if (lastProject) {
+        AppManager.selectedProject = lastProject;
       } else {
         AppManager.selectedProject = null;
       }
-      Services.obs.notifyObservers(null, "devtools-webide-ready", null);
-    });
+    } else {
+      AppManager.selectedProject = null;
+    }
   },
 
   uninit: function() {
@@ -205,9 +221,32 @@ let UI = {
 
   updateRuntimeList: function() {
     let USBListNode = document.querySelector("#runtime-panel-usbruntime");
+
     let simulatorListNode = document.querySelector("#runtime-panel-simulators");
+    let noHelperNode = document.querySelector("#runtime-panel-noadbhelper");
+    let noUSBNode = document.querySelector("#runtime-panel-nousbdevice");
+
     while (USBListNode.hasChildNodes()) {
       USBListNode.firstChild.remove();
+    }
+
+    if (Devices.helperAddonInstalled) {
+      noHelperNode.setAttribute("hidden", "true");
+    } else {
+      noHelperNode.removeAttribute("hidden");
+    }
+
+    if (AppManager.runtimeList.usb.length == 0 && Devices.helperAddonInstalled) {
+      noUSBNode.removeAttribute("hidden");
+    } else {
+      noUSBNode.setAttribute("hidden", "true");
+    }
+
+    let noSimulatorNode = document.querySelector("#runtime-panel-nosimulator");
+    if (AppManager.runtimeList.simulator.length > 0) {
+      noSimulatorNode.setAttribute("hidden", "true");
+    } else {
+      noSimulatorNode.removeAttribute("hidden");
     }
 
     for (let runtime of AppManager.runtimeList.usb) {
@@ -299,6 +338,9 @@ let UI = {
   openProject: function() {
     let detailsIframe = document.querySelector("#details");
     let projecteditorIframe = document.querySelector("#projecteditor");
+    let addonsIframe = document.querySelector("#addons");
+
+    addonsIframe.setAttribute("hidden", "true");
 
     let project = AppManager.selectedProject;
 
@@ -832,5 +874,21 @@ let Cmds = {
 
   showTroubleShooting: function() {
     UI.openInBrowser(HELP_URL);
+  },
+
+  showAddons: function() {
+    UI.hidePanels();
+    AppManager.selectedProject = null;
+
+    let details = document.querySelector("#details");
+    let addons = document.querySelector("#addons");
+
+    addons.removeAttribute("hidden");
+    details.setAttribute("hidden", "true");
+  },
+
+  hideAddons: function() {
+    UI.openLastProject();
+    UI.openProject();
   },
 }

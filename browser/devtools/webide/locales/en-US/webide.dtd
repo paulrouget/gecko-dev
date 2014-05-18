@@ -38,6 +38,8 @@
 <!ENTITY viewMenu_accesskey "V">
 <!ENTITY viewMenu_toggleEditor_label "Toggle Editor">
 <!ENTITY viewMenu_toggleEditor_accesskey "E">
+<!ENTITY viewMenu_showAddons_label "Manage simulators">
+<!ENTITY viewMenu_showAddons_accesskey "M">
 
 <!ENTITY projectButton_label "Open App">
 <!ENTITY runtimeButton_label "Select Runtime">
@@ -60,6 +62,9 @@
 <!ENTITY projectPanel_runtimeApps "Runtime Apps">
 <!ENTITY runtimePanel_USBDevices "USB Devices">
 <!ENTITY runtimePanel_simulators "Simulators">
+<!ENTITY runtimePanel_nosimulator "Install Simulator">
+<!ENTITY runtimePanel_noadbhelper "Install ADB Helper">
+<!ENTITY runtimePanel_nousbdevice "Can't see your device?">
 
 <!-- Lense -->
 <!ENTITY details_valid_header "valid">
@@ -75,3 +80,8 @@
 <!ENTITY newAppHeader "Select template">
 <!ENTITY newAppLoadingTemplate "Loading templates…">
 <!ENTITY newAppProjectName "Project Name:">
+
+<!-- Addons -->
+<!ENTITY addons_title "Extra Components:">
+<!ENTITY addons_close "close">
+<!ENTITY addons_aboutaddons "Open Addons Manager">
