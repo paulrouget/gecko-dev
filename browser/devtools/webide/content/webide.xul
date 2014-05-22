@@ -38,6 +38,7 @@
       <command id="cmd_disconnectRuntime" oncommand="Cmds.disconnectRuntime()" label="&runtimeMenu_disconnect_label;"/>
       <command id="cmd_showPermissionsTable" oncommand="Cmds.showPermissionsTable()" label="&runtimeMenu_showPermissionTable_label;"/>
       <command id="cmd_showRuntimeDetails" oncommand="Cmds.showRuntimeDetails()" label="&runtimeMenu_showDetails_label;"/>
+      <command id="cmd_showRuntimeMonitor" oncommand="Cmds.showRuntimeMonitor()" label="&runtimeMenu_showMonitor_label;"/>
       <command id="cmd_takeScreenshot" oncommand="Cmds.takeScreenshot()" label="&runtimeMenu_takeScreenshot_label;"/>
       <command id="cmd_toggleEditor" oncommand="Cmds.toggleEditors()" label="&viewMenu_toggleEditor_label;"/>
       <command id="cmd_play" oncommand="Cmds.play()"/>
@@ -67,6 +68,7 @@
         <menuitem command="cmd_takeScreenshot" accesskey="&runtimeMenu_takeScreenshot_accesskey;"/>
         <menuitem command="cmd_showPermissionsTable" accesskey="&runtimeMenu_showPermissionTable_accesskey;"/>
         <menuitem command="cmd_showRuntimeDetails" accesskey="&runtimeMenu_showDetails_accesskey;"/>
+        <menuitem command="cmd_showRuntimeMonitor" accesskey="&runtimeMenu_showMonitor_accesskey;"/>
         <menuseparator/>
         <menuitem command="cmd_disconnectRuntime" accesskey="&runtimeMenu_disconnect_accesskey;"/>
       </menupopup>
@@ -142,6 +144,7 @@
           <toolbarbutton class="panel-item" id="runtime-details" command="cmd_showRuntimeDetails"/>
           <toolbarbutton class="panel-item" id="runtime-permissions" command="cmd_showPermissionsTable"/>
           <toolbarbutton class="panel-item" id="runtime-screenshot"  command="cmd_takeScreenshot"/>
+          <toolbarbutton class="panel-item" id="runtime-monitor"  command="cmd_showRuntimeMonitor"/>
         </vbox>
       </vbox>
     </panel>
@@ -151,6 +154,7 @@
   <notificationbox flex="1" id="body">
     <iframe id="details" flex="1" hidden="true" src="details.xhtml"/>
     <iframe id="projecteditor" flex="1" hidden="true"/>
+    <iframe id="monitor" flex="1" hidden="true"/>
   </notificationbox>
 
   <splitter hidden="true" class="devtools-horizontal-splitter" orient="vertical"/>

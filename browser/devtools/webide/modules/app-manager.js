@@ -18,6 +18,7 @@ const {AppValidator} = require("devtools/app-manager/app-validator");
 const {ConnectionManager, Connection} = require("devtools/client/connection-manager");
 const AppActorFront = require("devtools/app-actor-front");
 const {getDeviceFront} = require("devtools/server/actors/device");
+const {getMonitorFront} = require("devtools/server/actors/monitor");
 
 const Strings = Services.strings.createBundle("chrome://webide/content/webide.properties");
 
@@ -267,6 +268,13 @@ exports.AppManager = AppManager = {
       return null;
     }
     return getDeviceFront(this.connection.client, this._listTabsResponse);
+  },
+
+  get monitorFront() {
+    if (!this._listTabsResponse) {
+      return null;
+    }
+    return getMonitorFront(this.connection.client, this._listTabsResponse);
   },
 
   disconnectRuntime: function() {

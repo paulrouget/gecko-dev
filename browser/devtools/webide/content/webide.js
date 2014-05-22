@@ -303,6 +303,8 @@ let UI = {
 
     // Nothing to show
 
+    this.hideMonitor();
+
     if (!project) {
       detailsIframe.setAttribute("hidden", "true");
       projecteditorIframe.setAttribute("hidden", "true");
@@ -347,6 +349,19 @@ let UI = {
     }
   },
 
+  showMonitor: function() {
+    AppManager.selectedProject = null;
+    let monitor = document.querySelector("#monitor");
+    monitor.removeAttribute("hidden");
+    monitor.setAttribute("src", "chrome://webide/content/monitor/monitor.xhtml");
+  },
+
+  hideMonitor: function() {
+    let monitor = document.querySelector("#monitor");
+    monitor.setAttribute("src", "about:blank");
+    monitor.setAttribute("hidden", "true");
+  },
+
   /********** COMMANDS **********/
 
   updateCommands: function() {
@@ -362,6 +377,7 @@ let UI = {
       document.querySelector("#cmd_showPermissionsTable").setAttribute("disabled", "true");
       document.querySelector("#cmd_takeScreenshot").setAttribute("disabled", "true");
       document.querySelector("#cmd_showRuntimeDetails").setAttribute("disabled", "true");
+      document.querySelector("#cmd_showRuntimeMonitor").setAttribute("disabled", "true");
       document.querySelector("#cmd_play").setAttribute("disabled", "true");
       document.querySelector("#cmd_stop").setAttribute("disabled", "true");
       document.querySelector("#cmd_toggleToolbox").setAttribute("disabled", "true");
@@ -421,6 +437,7 @@ let UI = {
     let screenshotCmd = document.querySelector("#cmd_takeScreenshot");
     let permissionsCmd = document.querySelector("#cmd_showPermissionsTable");
     let detailsCmd = document.querySelector("#cmd_showRuntimeDetails");
+    let monitorCmd = document.querySelector("#cmd_showRuntimeMonitor");
     let disconnectCmd = document.querySelector("#cmd_disconnectRuntime");
 
     let box = document.querySelector("#runtime-actions");
@@ -431,6 +448,7 @@ let UI = {
       permissionsCmd.removeAttribute("disabled");
       disconnectCmd.removeAttribute("disabled");
       detailsCmd.removeAttribute("disabled");
+      monitorCmd.removeAttribute("disabled");
       box.removeAttribute("hidden");
       runtimePanelButton.setAttribute("active", "true");
     } else {
@@ -438,6 +456,7 @@ let UI = {
       permissionsCmd.setAttribute("disabled", "true");
       disconnectCmd.setAttribute("disabled", "true");
       detailsCmd.setAttribute("disabled", "true");
+      monitorCmd.setAttribute("disabled", "true");
       box.setAttribute("hidden", "true");
       runtimePanelButton.removeAttribute("active");
     }
@@ -788,6 +807,10 @@ let Cmds = {
       UI.openInBrowser(url);
     }), "showing runtime details");
 
+  },
+
+  showRuntimeMonitor: function() {
+    UI.showMonitor();
   },
 
   play: function() {

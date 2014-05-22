@@ -594,3 +594,29 @@ let memoryWatcher = {
   }
 };
 developerHUD.registerWatcher(memoryWatcher);
+
+
+function PaulLoop() {
+  let time = Date.now();
+
+  let data = [{
+    graphID: "global",
+    dataID: "battery",
+    measure: [{
+      value:navigator.battery.level,
+      time: time,
+      unit: "%",
+    }]
+  }, {
+    graphID: "global",
+    dataID: "randomStuff",
+    measure: [{
+      value: Math.random(),
+      time: time,
+      unit: "x",
+    }]
+  }];
+  Services.obs.notifyObservers(null, "devtools-monitor-update", JSON.stringify(data));
+}
+
+setInterval(PaulLoop, 200);

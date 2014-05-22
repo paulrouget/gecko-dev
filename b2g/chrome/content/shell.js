@@ -969,6 +969,7 @@ let RemoteDebugger = {
           globalActorFactories: restrictPrivileges ? {
             webappsActor: DebuggerServer.globalActorFactories.webappsActor,
             deviceActor: DebuggerServer.globalActorFactories.deviceActor,
+            monitorActor: DebuggerServer.globalActorFactories.monitorActor,
           } : DebuggerServer.globalActorFactories
         };
         let root = new RootActor(connection, parameters);
