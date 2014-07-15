@@ -4,6 +4,7 @@
 
 const Cu = Components.utils;
 Cu.import("resource:///modules/devtools/gDevTools.jsm");
+Cu.import("resource://gre/modules/FileUtils.jsm");
 const {Services} = Cu.import("resource://gre/modules/Services.jsm");
 const {require} = Cu.import("resource://gre/modules/devtools/Loader.jsm", {}).devtools;
 const {AppProjects} = require("devtools/app-manager/app-projects");
@@ -51,6 +52,8 @@ function resetUI() {
 
 function updateUI() {
   resetUI();
+
+  RunValidation();
 
   let project = AppManager.selectedProject;
   if (!project) {
@@ -124,4 +127,43 @@ function updateUI() {
 
 function removeProject() {
   AppManager.removeSelectedProject();
+}
+
+let ValidatorManifest = require("devtools/app-validator/manifest/index");
+let ValidatorIcon = require("devtools/app-validator/icons/index");
+
+function RunValidation() {
+  let project = AppManager.selectedProject;
+  let pre = document.querySelector("#validation > pre");
+  pre.textContent = "";
+  if (!project) {
+    pre.textContent = "No project";
+  } else if (project.type != "packaged") {
+    pre.textContent = "Not packaged app";
+  } else {
+    let manifest = project.manifest;
+    let validator = new ValidatorManifest();
+    let validationResult = validator.validate(manifest, {packaged:true,listed:true});
+    pre.textContent = JSON.stringify(validationResult,null,2);
+
+    let location = FileUtils.File(project.location);
+    if (!location.exists()) {
+      // FIXME
+    }
+    if (!location.isDirectory()) {
+      // FIXME
+    }
+
+    for (let key in manifest.icons) {
+      let size = key;
+      let path = manifest.icons[size];
+      // FIXME: check that path starts with '/'
+      let file = FileUtils.File(project.location);
+      file.appendRelativePath(path.substr(1));
+      ValidatorIcon(file.path, {}, (res) => {
+        pre.textContent += `\nIcon validation ${path} [${size}]: `;
+        pre.textContent += JSON.stringify(res);
+      });
+    }
+  }
 }

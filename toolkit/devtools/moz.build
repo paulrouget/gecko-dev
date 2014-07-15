@@ -6,6 +6,7 @@
 
 DIRS += [
     'acorn',
+    'app-validator',
     'apps',
     'client',
     'discovery',

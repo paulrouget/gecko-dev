@@ -132,3 +132,7 @@ body.warning #validation_status > .warning,
 body.error #validation_status > .error {
   display: inline;
 }
+
+#validation {
+  border-top: 1px dotted grey;
+}

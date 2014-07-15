@@ -1,0 +1,11 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at http://mozilla.org/MPL/2.0/.
+
+include $(topsrcdir)/config/rules.mk
+
+libs::
+	$(NSINSTALL) $(srcdir)/libwrappers/*.js $(FINAL_TARGET)/modules/devtools/app-validator/libwrappers
+	$(NSINSTALL) $(srcdir)/node-firefox-app-validator-manifest/*.js $(FINAL_TARGET)/modules/devtools/app-validator/manifest
+	$(NSINSTALL) $(srcdir)/node-firefox-app-validator-manifest/rules/*.json $(FINAL_TARGET)/modules/devtools/app-validator/manifest/rules
+	$(NSINSTALL) $(srcdir)/node-firefox-app-validator-icons/*.js $(FINAL_TARGET)/modules/devtools/app-validator/icons

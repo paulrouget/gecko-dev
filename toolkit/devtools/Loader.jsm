@@ -94,6 +94,7 @@ BuiltinProvider.prototype = {
         "devtools/styleinspector/css-logic": "resource://gre/modules/devtools/styleinspector/css-logic",
         "devtools/css-color": "resource://gre/modules/devtools/css-color",
         "devtools/output-parser": "resource://gre/modules/devtools/output-parser",
+        "devtools/app-validator": "resource://gre/modules/devtools/app-validator",
         "devtools/touch-events": "resource://gre/modules/devtools/touch-events",
         "devtools/client": "resource://gre/modules/devtools/client",
         "devtools/pretty-fast": "resource://gre/modules/devtools/pretty-fast.js",
@@ -150,6 +151,7 @@ SrcdirProvider.prototype = {
     let cssLogicURI = this.fileURI(OS.Path.join(toolkitDir, "styleinspector", "css-logic"));
     let cssColorURI = this.fileURI(OS.Path.join(toolkitDir, "css-color"));
     let outputParserURI = this.fileURI(OS.Path.join(toolkitDir, "output-parser"));
+    let appValidatorURI = this.fileURI(OS.Path.join(toolkitDir, "app-validator"));
     let touchEventsURI = this.fileURI(OS.Path.join(toolkitDir, "touch-events"));
     let clientURI = this.fileURI(OS.Path.join(toolkitDir, "client"));
     let prettyFastURI = this.fileURI(OS.Path.join(toolkitDir), "pretty-fast.js");
@@ -176,6 +178,7 @@ SrcdirProvider.prototype = {
         "devtools/styleinspector/css-logic": cssLogicURI,
         "devtools/css-color": cssColorURI,
         "devtools/output-parser": outputParserURI,
+        "devtools/app-validator": appValidatorURI,
         "devtools/touch-events": touchEventsURI,
         "devtools/client": clientURI,
         "devtools/pretty-fast": prettyFastURI,
