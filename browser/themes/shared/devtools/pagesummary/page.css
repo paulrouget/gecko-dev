@@ -1,0 +1,207 @@
+@font-face {
+  font-family: "icons";
+  src: url("icons.woff") format("woff");
+}
+
+:root {
+  font-size: 12px;
+  font-family: Helvetica, Helvetica Neue, sans-serif;
+  background: #222 url("chrome://browser/skin/devtools/responsive-background.png");
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+body.processed > #throbber {
+  display: none;
+}
+
+body:not(.processed) > #timeline,
+body:not(.processed) > header,
+body:not(.processed) > main {
+  display: none;
+}
+
+a {
+  text-decoration: underline;
+}
+
+body {
+  background: white;
+  color: #667380;
+  margin: 20px;
+  line-height: 1.42857;
+}
+
+main {
+  display: flex;
+  width: 100%;
+  flex: auto;
+  flex-wrap: wrap;
+  align-content: flex-start;
+}
+
+header {
+  padding: 20px;
+  display: flex;
+  flex: auto;
+}
+
+.titleAndURL {
+  flex: auto;
+}
+
+button {
+  border: 1px solid #f3f3f3;
+  background-color: white;
+  padding: 2px 6px;
+  cursor: pointer;
+  text-transform: uppercase;
+  color: #aaa;
+  font-size: 0.8rem;
+}
+
+button:hover {
+  background-color: #f3f3f3;
+}
+
+button:active {
+  border-color: black;
+}
+
+section {
+  flex: auto;
+  padding: 20px;
+}
+
+h1 {
+  font-size: 1.2rem;
+  font-weight: normal;
+  color: hsl(210, 11%, 45%);
+  padding: 1.313rem 0;
+  margin: 1rem 0px 1.313rem;
+  border-bottom: 1px solid rgb(235, 236, 237);
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 0.65) 65%, rgba(247, 247, 247, 0.99) 99%, rgb(255, 255, 255) 100%) repeat scroll 0% 0% transparent;
+}
+
+h1:before {
+  font-family: "icons";
+  font-size: 0.9rem;
+  display: inline-block;
+  text-align: center;
+  margin-right: 5px;
+}
+
+.header-timeline:before { content: ""; }
+.header-general:before { content: ""; }
+.header-resources:before { content: ""; }
+.header-troubleshooting:before { content: ""; }
+.header-security:before { content: ""; }
+.header-display:before { content: ""; }
+.header-viewport:before { content: ""; }
+
+
+li {
+  display: flex;
+}
+
+li:hover {
+  background-color: rgb(247, 247, 247);
+}
+
+.name {
+  flex: 1;
+  margin-right: 0.5rem;
+  min-width: 100px;
+}
+
+.value {
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+.sad {
+  color: rgb(241, 60, 0);
+}
+
+.happy {
+  color: rgb(44, 187, 15);
+}
+
+.dimensionAndList {
+  display: flex;
+  flex: auto;
+}
+
+.dimensionBox {
+  display: flex;
+  margin-right: 1rem;
+  background-color: rgb(247, 247, 247);
+  min-width: 180px;
+  min-height: 180px;
+  border-width: 0.5rem;
+  border-style: solid;
+  border-color: rgb(41, 46, 51) rgb(41, 46, 51) rgb(102, 115, 128) rgb(102, 115, 128);
+  position: relative;
+}
+
+.dimensionLabel.width {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.dimensionLabel.height {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  text-align: right;
+}
+
+/* timeline */
+
+#timeline {
+  margin: 20px -20px;
+  padding: 20px 40px;
+  display: flex;
+  background: #F3F3F3;
+}
+
+.bars {
+  padding: 0 20px;
+}
+
+.labels > label {
+  display: block;
+  font-size: 10px;
+  height: 12px;
+  white-space: nowrap;
+}
+
+.bar, .point {
+  height: 8px;
+  margin: 4px 0; /* WTF? 2px should be enough, but apparently, the bottom margin overlaps the top one for a magic reason */
+  min-width: 8px;
+  border-radius: 4px;
+}
+
+.point {
+  width: 8px;
+  transform: translateX(-4px);
+}
+
+.tl-unload            {background-color: #0088CC}
+.tl-redirect          {background-color: #0088CC}
+.tl-fetchStart        {background-color: #5B5FFF}
+.tl-domainLookup      {background-color: #B82EE5}
+.tl-connect           {background-color: #ED2655}
+.tl-request           {background-color: #F13C00}
+.tl-response          {background-color: #D97E00}
+.tl-domloading        {background-color: #2CBB0F}
+.tl-dominteractive    {background-color: #5F88B0}
+.tl-domcontentloaded  {background-color: #B82EE5}
+.tl-domcomplete       {background-color: #FF0066}
+.tl-domloadevent      {background-color: #5B5FFF}

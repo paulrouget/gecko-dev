@@ -465,6 +465,9 @@ browser.jar:
   skin/classic/browser/devtools/app-manager/rocket.svg                (../shared/devtools/app-manager/images/rocket.svg)
   skin/classic/browser/devtools/app-manager/noise.png                 (../shared/devtools/app-manager/images/noise.png)
   skin/classic/browser/devtools/app-manager/default-app-icon.png      (../shared/devtools/app-manager/images/default-app-icon.png)
+  skin/classic/browser/devtools/pagesummary/page.css                  (../shared/devtools/pagesummary/page.css)
+  skin/classic/browser/devtools/pagesummary/plugin.svg                (../shared/devtools/pagesummary/plugin.svg)
+  skin/classic/browser/devtools/pagesummary/icons.woff                (../shared/devtools/pagesummary/icons.woff)
 
 #ifdef MOZ_SERVICES_SYNC
   skin/classic/browser/sync-16.png
