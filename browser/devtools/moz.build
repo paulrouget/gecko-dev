@@ -17,6 +17,7 @@ DIRS += [
     'layoutview',
     'markupview',
     'netmonitor',
+    'pagesummary',
     'profiler',
     'responsivedesign',
     'scratchpad',

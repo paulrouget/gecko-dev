@@ -1961,7 +1961,7 @@ VariableBubbleView.prototype = {
         }
       }]);
     } else {
-      this._tooltip.setVariableContent(objectActor, {
+      this._tooltip.setVariableContent(objectActor, null, {
         searchPlaceholder: L10N.getStr("emptyPropertiesFilterText"),
         searchEnabled: Prefs.variablesSearchboxVisible,
         eval: (variable, value) => {

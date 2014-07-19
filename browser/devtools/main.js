@@ -33,6 +33,7 @@ loader.lazyGetter(this, "WebAudioEditorPanel", () => require("devtools/webaudioe
 loader.lazyGetter(this, "ProfilerPanel", () => require("devtools/profiler/panel"));
 loader.lazyGetter(this, "NetMonitorPanel", () => require("devtools/netmonitor/panel").NetMonitorPanel);
 loader.lazyGetter(this, "ScratchpadPanel", () => require("devtools/scratchpad/scratchpad-panel").ScratchpadPanel);
+loader.lazyGetter(this, "PageSummaryPanel", () => require("devtools/pagesummary/panel").PageSummaryPanel);
 
 // Strings
 const toolboxProps = "chrome://browser/locale/devtools/toolbox.properties";
@@ -334,8 +335,29 @@ Tools.scratchpad = {
   }
 };
 
+Tools.pagesummary = {
+  id: "pagesummary",
+  ordinal: 1,
+  visibilityswitch: "devtools.pagesummary.enabled",
+  icon: "chrome://browser/skin/devtools/tool-profiler.png",
+  url: "chrome://browser/content/devtools/pagesummary/panel.xul",
+  label: "pagesummary",
+  tooltip: "pagesummary tooltip",
+  inMenu: true,
+
+  isTargetSupported: function (target) {
+    return true;
+  },
+
+  build: function (frame, target) {
+    let panel = new PageSummaryPanel(frame, target);
+    return panel.open();
+  }
+};
+
 let defaultTools = [
   Tools.options,
+  Tools.pagesummary,
   Tools.webConsole,
   Tools.inspector,
   Tools.jsdebugger,

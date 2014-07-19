@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+
+<!DOCTYPE html>
+
+<!-- FIXME:
+<!DOCTYPE html [
+<!ENTITY % layoutviewDTD SYSTEM "chrome://browser/locale/devtools/layoutview.dtd" >
+ %layoutviewDTD;
+]>
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+  <script type="application/javascript;version=1.8" src="chrome://browser/content/devtools/app-manager/template.js"></script>
+  <script type="application/javascript;version=1.8" src="pagesummary.js"></script>
+  <link rel="stylesheet" href="chrome://browser/skin/devtools/pagesummary/page.css" type="text/css"/>
+  </head>
+  <body>
+    <span id="throbber">loading…</span>
+
+    <!-- FIXME: strategy if JSON format change -->
+    <header>
+      <div class="titleAndURL">
+        <p template='{"type":"textContent","path":"title"}'></p>
+        <p template='{"type":"textContent","path":"url"}'></p>
+      </div>
+      <div id="controls">
+        <button>refresh</button>
+        <button>print</button>
+        <button>export</button>
+        <button>JSON</button>
+      </div>
+
+    </header>
+
+
+
+    <main>
+      <section>
+        <h1 class="header-timeline">Page loaded in <span class="value" template='{"type":"textContent","path":"totalDuration"}'></span> milliseconds</h1>
+        <div id="timeline"></div>
+      </section>
+
+      <section>
+        <h1 class="header-general">General</h1>
+        <ul>
+          <li class="characterset">
+            <span class="name">Character Set:</span>
+            <span class="value" template='{"type":"textContent","path":"characterSet"}'></span>
+          </li>
+          <li class="contenttype">
+            <span class="name">Content Type:</span>
+            <span class="value" template='{"type":"textContent","path":"contentType"}'></span>
+          </li>
+          <li class="metanodes">
+            <span class="name">Meta nodes:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="metaNodes">
+              <span class="value" template='{"type":"textContent","path":"metaNodes.length"}'></span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h1 class="header-security">Security</h1>
+        <ul class="securityNoSSL">
+          <li class="hasMixedContent">
+            <span class="name">Mixed content:</span>
+            <span class="value" template='{"type":"textContent","path":"hasMixedContent"}'></span>
+          </li>
+          <li class="sslStatus">
+            <span class="name">SSL:</span>
+            <span class="value">no</span>
+          </li>
+        </ul>
+        <ul class="securityHasSSL">
+          <li class="hasMixedContent">
+            <span class="name">Mixed content:</span>
+            <span class="value" template='{"type":"textContent","path":"hasMixedContent"}'></span>
+          </li>
+          <li class="sslStatus">
+            <span class="name">SSL:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="security">
+              <span class="value">yes</span>
+            </a>
+          </li>
+          <li class="sslTrusted">
+            <span class="name">Trusted:</span>
+            <span class="value" template='{"type":"textContent","path":"security.isTrusted"}'></span>
+          </li>
+          <li class="cAName">
+            <span class="name">CA name:</span>
+            <span class="value" template='{"type":"textContent","path":"security.cAName"}'></span>
+          </li>
+          <li class="encryptionStrength">
+            <span class="name">Encryption Strength:</span>
+            <span class="value" template='{"type":"textContent","path":"security.encryptionStrength"}'></span>
+          </li>
+          <li class="isDomainMismatch">
+            <span class="name">Domain mismatch:</span>
+            <span class="value" template='{"type":"textContent","path":"security.isDomainMismatch"}'></span>
+          </li>
+          <li class="isNotValidAtThisTime">
+            <span class="name">Not valid at this time:</span>
+            <span class="value" template='{"type":"textContent","path":"security.isNotValidAtThisTime"}'></span>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h1 class="header-troubleshooting">Troubleshooting</h1>
+        <ul>
+          <li class="quirksmode">
+            <span class="name">Quirks mode:</span>
+            <span class="value" template='{"type":"textContent","path":"quirksMode"}'></span>
+          </li>
+          <li class="errors">
+            <span class="name">Errors:</span>
+            <span class="value" template='{"type":"textContent","path":"messageCount.error"}'></span>
+          </li>
+          <li class="warnings">
+            <span class="name">Warnings:</span>
+            <span class="value" template='{"type":"textContent","path":"messageCount.warning"}'></span>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h1 class="header-resources">Resources</h1>
+        <ul>
+          <li class="scripts">
+            <span class="name">Scripts:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="scripts">
+              <span class="value" template='{"type":"textContent","path":"scripts.length"}'></span>
+            </a>
+          </li>
+          <li class="styles">
+            <span class="name">Styles:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="styles">
+              <span class="value" template='{"type":"textContent","path":"styles.length"}'></span>
+            </a>
+          </li>
+          <li class="plugins">
+            <span class="name">Plugins:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="plugins">
+              <span class="value" template='{"type":"textContent","path":"plugins.length"}'></span>
+            </a>
+          </li>
+          <li class="docshells">
+            <span class="name">Documents:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="docShells">
+              <span class="value" template='{"type":"textContent","path":"docShellCount"}'></span>
+            </a>
+          </li>
+          <li class="fonts">
+            <span class="name">Fonts:</span>
+            <a href="#" onclick='showTooltip(event)' data-details="fonts">
+              <span class="value" template='{"type":"textContent","path":"fonts.length"}'></span>
+            </a>
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h1 class="header-display">Display</h1>
+        <div class="dimensionAndList">
+          <div class="dimensionBox">
+            <p class="dimensionLabel width">
+              <span class="name">page width:</span>
+              <p class="value"><span template='{"type":"textContent","path":"size.width"}'></span>px</p>
+            </p>
+            <p class="dimensionLabel height">
+              <span class="name">page height:</span>
+              <p class="value"><span template='{"type":"textContent","path":"size.height"}'></span>px</p>
+            </p>
+          </div>
+          <ul>
+            <li class="screenPixelsPerCSSPixel">
+              <span class="name">Screen pixels per CSS pixels:</span>
+              <span class="value" template='{"type":"textContent","path":"screenPixelsPerCSSPixel"}'></span>
+            </li>
+            <li class="displayDPI">
+              <span class="name">Display DPI:</span>
+              <span class="value" template='{"type":"textContent","path":"displayDPI"}'></span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section>
+        <h1 class="header-viewport">Viewport</h1>
+          <div class="dimensionAndList">
+          <div class="dimensionBox">
+            <p class="dimensionLabel width">
+              <span class="name">viewport width:</span>
+              <p class="value"><span template='{"type":"textContent","path":"viewport.width"}'></span>px</p>
+            </p>
+            <p class="dimensionLabel height">
+              <span class="name">viewport height:</span>
+              <p class="value"><span template='{"type":"textContent","path":"viewport.height"}'></span>px</p>
+            </p>
+          </div>
+          <ul>
+            <li class="defaultZoom">
+              <span class="name">Default zoom:</span>
+              <span class="value" template='{"type":"textContent","path":"viewport.defaultZoom"}'></span>
+            </li>
+            <li class="allowZoom">
+              <span class="name">Allow zoom:</span>
+              <span class="value" template='{"type":"textContent","path":"viewport.allowZoom"}'></span>
+            </li>
+            <li class="minZoom">
+              <span class="name">min zoom:</span>
+              <span class="value" template='{"type":"textContent","path":"viewport.minZoom"}'></span>
+            </li>
+            <li class="maxZoom">
+              <span class="name">max zoom:</span>
+              <span class="value" template='{"type":"textContent","path":"viewport.maxZoom"}'></span>
+            </li>
+            <li class="autoSize">
+              <span class="name">auto size:</span>
+              <span class="value" template='{"type":"textContent","path":"viewport.autoSize"}'></span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+
+
+    </main>
+
+    <pre id="preSummary"></pre>
+
+  </body>
+</html>
