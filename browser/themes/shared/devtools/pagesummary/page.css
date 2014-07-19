@@ -6,7 +6,9 @@
 :root {
   font-size: 12px;
   font-family: Helvetica, Helvetica Neue, sans-serif;
-  background: #222 url("chrome://browser/skin/devtools/responsive-background.png");
+  background: white;
+  color: #667380;
+  line-height: 1.42857;
 }
 
 * {
@@ -27,13 +29,6 @@ body:not(.processed) > main {
 
 a {
   text-decoration: underline;
-}
-
-body {
-  background: white;
-  color: #667380;
-  margin: 20px;
-  line-height: 1.42857;
 }
 
 main {

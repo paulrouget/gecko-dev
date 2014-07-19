@@ -21,8 +21,6 @@ Cu.import("resource://gre/modules/jsdebugger.jsm");
 Cu.import("resource://gre/modules/Services.jsm");
 Cu.import("resource://gre/modules/PlacesUtils.jsm");
 
-addDebuggerToGlobal(this);
-
 let PageSummary = protocol.ActorClass({
   typeName: "pagesummary",
   initialize: function(conn, tabActor) {
