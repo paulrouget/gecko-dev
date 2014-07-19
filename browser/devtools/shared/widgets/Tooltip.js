@@ -521,11 +521,14 @@ Tooltip.prototype = {
   },
 
   /**
-   * Fill the tooltip with a variables view, inspecting an object via its
-   * corresponding object actor, as specified in the remote debugging protocol.
+   * Fill the tooltip with a variables view, inspecting a raw JS object or
+   * an object via its corresponding object actor, as specified in the remote
+   * debugging protocol.
    *
    * @param {object} objectActor
    *        The value grip for the object actor.
+   * @param {object} rawObject
+   *        A JS object
    * @param {object} viewOptions [optional]
    *        Options for the variables view visualization.
    * @param {object} controllerOptions [optional]
@@ -543,6 +546,7 @@ Tooltip.prototype = {
    */
   setVariableContent: function(
     objectActor,
+    rawObject,
     viewOptions = {},
     controllerOptions = {},
     relayEvents = {},
@@ -583,10 +587,15 @@ Tooltip.prototype = {
     widget.searchPlaceholder = viewOptions.searchPlaceholder;
     widget.searchEnabled = viewOptions.searchEnabled;
 
-    // Use the object actor's grip to display it as a variable in the widget.
-    // The controller options are allowed to change between uses.
-    widget.controller.setSingleVariable(
-      { objectActor: objectActor }, controllerOptions);
+    if (objectActor) {
+      // Use the object actor's grip to display it as a variable in the widget.
+      // The controller options are allowed to change between uses.
+      widget.controller.setSingleVariable(
+        { objectActor: objectActor }, controllerOptions);
+    } else {
+      widget.controller.setSingleVariable(
+        { rawObject: rawObject}, controllerOptions);
+    }
 
     this.content = vbox;
     this.panel.setAttribute("clamped-dimensions", "");
