@@ -1402,6 +1402,9 @@ pref("devtools.canvasdebugger.enabled", false);
 // Enable the Web Audio Editor
 pref("devtools.webaudioeditor.enabled", false);
 
+// Enable the timeline.
+pref("devtools.timeline.enabled", true);
+
 // Default theme ("dark" or "light")
 pref("devtools.theme", "light");
 

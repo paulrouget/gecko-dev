@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<?xml-stylesheet href="chrome://browser/skin/" type="text/css"?>
+<?xml-stylesheet href="chrome://browser/content/devtools/widgets.css" type="text/css"?>
+<?xml-stylesheet href="chrome://browser/skin/devtools/common.css" type="text/css"?>
+<?xml-stylesheet href="chrome://browser/skin/devtools/timeline.css" type="text/css"?>
+<!DOCTYPE window [
+  <!ENTITY % timelineDTD SYSTEM "chrome://browser/locale/devtools/timeline.dtd">
+  %timelineDTD;
+]>
+
+<window xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <script src="chrome://browser/content/devtools/theme-switching.js"/>
+  <script type="application/javascript" src="timeline.js"/>
+
+  <vbox class="theme-body" flex="1">
+    <canvas id="fullview" height="36" xmlns="http://www.w3.org/1999/xhtml"></canvas>
+    <label id="info"/>
+    <button label="toggle" oncommand="toggle()"/>
+  </vbox>
+</window>

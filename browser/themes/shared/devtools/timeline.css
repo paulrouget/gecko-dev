@@ -1,0 +1,9 @@
+.theme-body {
+  padding: 10px 0;
+}
+
+#fullview {
+  border: 3px solid #EEE;
+  border-width: 3px 0;
+  background-color: #EEE;
+}

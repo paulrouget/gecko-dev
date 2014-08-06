@@ -33,6 +33,7 @@ loader.lazyGetter(this, "WebAudioEditorPanel", () => require("devtools/webaudioe
 loader.lazyGetter(this, "ProfilerPanel", () => require("devtools/profiler/panel").ProfilerPanel);
 loader.lazyGetter(this, "NetMonitorPanel", () => require("devtools/netmonitor/panel").NetMonitorPanel);
 loader.lazyGetter(this, "ScratchpadPanel", () => require("devtools/scratchpad/scratchpad-panel").ScratchpadPanel);
+loader.lazyGetter(this, "TimelinePanel", () => require("devtools/timeline/panel").TimelinePanel);
 
 // Strings
 const toolboxProps = "chrome://browser/locale/devtools/toolbox.properties";
@@ -42,6 +43,7 @@ const styleEditorProps = "chrome://browser/locale/devtools/styleeditor.propertie
 const shaderEditorProps = "chrome://browser/locale/devtools/shadereditor.properties";
 const canvasDebuggerProps = "chrome://browser/locale/devtools/canvasdebugger.properties";
 const webAudioEditorProps = "chrome://browser/locale/devtools/webaudioeditor.properties";
+const timelineProps = "chrome://browser/locale/devtools/timeline.properties";
 
 const webConsoleProps = "chrome://browser/locale/devtools/webconsole.properties";
 const profilerProps = "chrome://browser/locale/devtools/profiler.properties";
@@ -58,6 +60,7 @@ loader.lazyGetter(this, "inspectorStrings", () => Services.strings.createBundle(
 loader.lazyGetter(this, "profilerStrings",() => Services.strings.createBundle(profilerProps));
 loader.lazyGetter(this, "netMonitorStrings", () => Services.strings.createBundle(netMonitorProps));
 loader.lazyGetter(this, "scratchpadStrings", () => Services.strings.createBundle(scratchpadProps));
+loader.lazyGetter(this, "timelineStrings", () => Services.strings.createBundle(timelineProps));
 
 let Tools = {};
 exports.Tools = Tools;
@@ -335,6 +338,25 @@ Tools.scratchpad = {
   }
 };
 
+Tools.timeline = {
+  id: "timeline",
+  ordinal: 99,
+  visibilityswitch: "devtools.timeline.enabled",
+  icon: "chrome://browser/skin/devtools/tool-styleeditor.svg",
+  invertIconForLightTheme: true,
+  url: "chrome://browser/content/devtools/timeline/timeline.xul",
+  label: l10n("ToolboxTimeline.label", timelineStrings),
+  panelLabel: l10n("ToolboxTimeline.panelLabel", timelineStrings),
+  tooltip: l10n("ToolboxTimeline.tooltip", timelineStrings),
+  isTargetSupported: function(target) {
+    return !target.isAddon;
+  },
+  build: function (iframeWindow, toolbox) {
+    let panel = new TimelinePanel(iframeWindow, toolbox);
+    return panel.open();
+  }
+};
+
 let defaultTools = [
   Tools.options,
   Tools.webConsole,
@@ -346,7 +368,8 @@ let defaultTools = [
   Tools.webAudioEditor,
   Tools.jsprofiler,
   Tools.netMonitor,
-  Tools.scratchpad
+  Tools.scratchpad,
+  Tools.timeline
 ];
 
 exports.defaultTools = defaultTools;

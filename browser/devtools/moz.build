@@ -26,6 +26,7 @@ DIRS += [
     'styleeditor',
     'styleinspector',
     'tilt',
+    'timeline',
     'webaudioeditor',
     'webconsole',
     'webide',

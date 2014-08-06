@@ -72,7 +72,7 @@ let TimelineActor = protocol.ActorClass({
       markers = markers.filter(m => !!m);
       events.emit(this, "markers", markers);
     }
-    this._timeout = setTimeout(() => this._pullTimelineData(), 300);
+    this._timeout = setTimeout(() => this._pullTimelineData(), 100);
   },
 });
 
