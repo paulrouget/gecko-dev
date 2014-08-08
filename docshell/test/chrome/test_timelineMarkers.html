@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script type="application/javascript" src="chrome://mochikit/content/tests/SimpleTest/SimpleTest.js"></script>
+  <script type="text/javascript" src="chrome://mochikit/content/tests/SimpleTest/paint_listener.js"></script>
+  <link rel="stylesheet" type="text/css" href="chrome://mochikit/content/tests/SimpleTest/test.css"/>
+  <script class="testbody" type="application/javascript">
+
+SimpleTest.waitForExplicitFinish();
+
+var Ci = Components.interfaces;
+
+setTimeout(runTest, 2000);
+
+var div, docShell;
+var cursor = 0;
+var tests = [
+  {
+    action: () => {
+      div.style.width = "10px";
+    },
+    success: () => {
+      var markers = docShell.flushTimelineMarkers();
+      var testId = "test " + (cursor - 1) + ": ";
+      console.log(testId, markers);
+      ok(markers.length > 0, testId + "we got markers");
+      ok(markers.some(m => m.name == "Reflow"), testId + "markers includes Reflow");
+      ok(markers.some(m => m.name == "DisplayList"), testId + "markers includes DisplayList");
+      ok(markers.some(m => m.name == "Styles"), testId + "markers includes Restyle");
+    },
+  },
+  {
+    action: () => {
+      div.style.backgroundColor = "green";
+    },
+    success: () => {
+      var markers = docShell.flushTimelineMarkers();
+      var testId = "test " + (cursor - 1) + ": ";
+      console.log(testId, markers);
+      ok(markers.length > 0, testId + "we got markers");
+      ok(!markers.some(m => m.name == "Reflow"), testId + "markers doesn't includes Reflow");
+      ok(markers.some(m => m.name == "DisplayList"), testId + "markers includes DisplayList");
+      ok(markers.some(m => m.name == "Styles"), testId + "markers includes Restyle");
+    },
+  },
+];
+
+function runTest() {
+  docShell = window.QueryInterface(Ci.nsIInterfaceRequestor).
+                    getInterface(Ci.nsIWebNavigation).
+                    QueryInterface(Ci.nsIDocShell);
+
+
+  div = document.querySelector("#tochange");
+  ok(docShell.recordTimelineMarkers === false, "recordTimelineMarkers initialized at false.");
+  ok(docShell.flushTimelineMarkers().length == 0, "no markers.");
+
+  docShell.recordTimelineMarkers = true;
+
+  ok(docShell.recordTimelineMarkers === true, "recordTimelineMarkers is true.");
+
+  setTimeout(runOneTest, 1000);
+
+  function runOneTest() {
+    if (cursor >= tests.length) {
+      docShell.recordTimelineMarkers = false;
+      ok(docShell.recordTimelineMarkers === false, "recordTimelineMarkers re-initialized to false.");
+      SimpleTest.finish();
+      return;
+    }
+    var test = tests[cursor++];
+    test.action();
+    waitForAllPaintsFlushed(() => {
+        try {
+          test.success();
+        } catch(e) {
+          ok(false, "exception: " + e);
+        }
+        runOneTest();
+    });
+  }
+}
+
+  </script>
+</head>
+<body>
+<p id="display">
+</p>
+<div id="tochange" style="width:20px;height:20px;background:red"></div>
+</body>
+</html>
