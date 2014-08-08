@@ -20,6 +20,7 @@
 #include "mozilla/Services.h"
 #include "mozilla/StartupTimeline.h"
 #include "mozilla/Telemetry.h"
+#include "mozilla/UniquePtr.h"
 #include "mozilla/unused.h"
 #include "mozilla/VisualEventTracer.h"
 #include "URIUtils.h"
@@ -88,6 +89,8 @@
 #include "nsDocShellEnumerator.h"
 #include "nsSHistory.h"
 #include "nsDocShellEditorData.h"
+#include "GeckoProfiler.h"
+#include "ProfilerMarkers.h"
 
 // Helper Classes
 #include "nsError.h"
@@ -2785,6 +2788,136 @@ nsDocShell::HistoryTransactionRemoved(int32_t aIndex)
     }
 
     return NS_OK;
+}
+
+NS_IMETHODIMP
+nsDocShell::SetRecordTimelineMarkers(bool aValue)
+{
+  if (aValue) {
+    mTimelineStartTime = TimeStamp::Now();
+  } else {
+    mTimelineStartTime = TimeStamp();
+    mTimelineMarkers.Clear();
+  }
+
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsDocShell::GetRecordTimelineMarkers(bool* aValue)
+{
+  *aValue = !mTimelineStartTime.IsNull();
+  return NS_OK;
+}
+
+nsresult
+nsDocShell::FlushTimelineMarkers(JSContext* aCx,
+                                 JS::MutableHandle<JS::Value> aMarkers)
+{
+  JS::Rooted<JSObject*> array(aCx, JS_NewArrayObject(aCx, 0));
+
+  // Looping over all markers gathered so far at the docShell level, whenever a
+  // START marker is found, look for the corresponding END marker and build a
+  // {name,start,end} JS object.
+  // Paint markers are different because paint is handled at root docShell level
+  // in the information that a paint was done is then stored at each sub docShell
+  // level but we can only be sure that a paint did happen in a docShell if an
+  // Invalidate marker type was recorded too.
+
+  uint32_t eventIndex = 0;
+  for (uint32_t i = 0; i < mTimelineMarkers.Length(); i++) {
+    // Get the current marker
+    ProfilerMarker* startMarker = mTimelineMarkers[i].get();
+    ProfilerMarkerTracing* startPayload = static_cast<ProfilerMarkerTracing*>(
+      startMarker->GetPayload());
+    const char* startMarkerName = startMarker->GetMarkerName();
+
+    bool hasSeenPaintInvalidation = false;
+
+    if (startPayload->GetMetaData() == TRACING_INTERVAL_START) {
+      // The assumption is that the devtools timeline flushes markers frequently
+      // enough for the amount of markers to always be small enough that the
+      // nested for loop isn't going to be a performance problem.
+      for (uint32_t j = i + 1; j < mTimelineMarkers.Length(); j ++) {
+        ProfilerMarker* endMarker = mTimelineMarkers[j].get();
+        ProfilerMarkerTracing* endPayload = static_cast<ProfilerMarkerTracing*>(
+          endMarker->GetPayload());
+        const char* endMarkerName = endMarker->GetMarkerName();
+
+        // Look for paint invalidation markers to stream out paint markers
+        if (strcmp(endMarker->GetMarkerName(), "Invalidate") == 0) {
+          hasSeenPaintInvalidation = true;
+        }
+
+        bool isSameMarkerType = strcmp(startMarkerName, endMarkerName) == 0;
+        bool isValidType = strcmp(endMarkerName, "DisplayList") != 0 ||
+                           hasSeenPaintInvalidation;
+
+        if (endPayload->GetMetaData() == TRACING_INTERVAL_END &&
+            isSameMarkerType && isValidType) {
+
+          JS::Rooted<JSObject*> timelineEvent(aCx,
+            JS_NewObject(aCx, nullptr, JS::NullPtr(), JS::NullPtr()));
+          
+          JS::RootedString name(aCx,
+            JS_NewStringCopyZ(aCx, startMarker->GetMarkerName()));
+          JS_DefineProperty(aCx, timelineEvent, "name", name, JSPROP_ENUMERATE);
+
+          JS_DefineProperty(aCx, timelineEvent, "start", startMarker->GetTime(),
+            JSPROP_ENUMERATE);
+          JS_DefineProperty(aCx, timelineEvent, "end", endMarker->GetTime(),
+            JSPROP_ENUMERATE);
+
+          JS_SetElement(aCx, array, eventIndex, timelineEvent);
+          eventIndex ++;
+          
+          break;
+        }
+      }
+    }
+  }
+
+  aMarkers.setObject(*array);
+
+  // TODO: Free profiler marker objects here to free their allocated memory
+  mTimelineMarkers.Clear();
+
+  return NS_OK;
+}
+
+void
+nsDocShell::AddTimelineMarker(const char* aCategory,
+                              const char* aInfo,
+                              TracingMetadata aMetaData)
+{
+  if (!mTimelineStartTime.IsNull()) {
+    this->AddTimelineMarker(aInfo,
+                           new ProfilerMarkerTracing(aCategory, aMetaData));
+  }
+}
+
+void
+nsDocShell::AddTimelineMarker(const char* aCategory,
+                              const char* aInfo,
+                              ProfilerBacktrace* aCause,
+                              TracingMetadata aMetaData)
+{
+  if (!mTimelineStartTime.IsNull()) {
+    this->AddTimelineMarker(aInfo,
+                            new ProfilerMarkerTracing(aCategory, aMetaData, aCause));
+  }
+}
+
+void
+nsDocShell::AddTimelineMarker(const char* aInfo,
+                              ProfilerMarkerTracing* aPayload)
+{
+  if (!mTimelineStartTime.IsNull()) {
+    float delta = (TimeStamp::Now() - mTimelineStartTime).ToMilliseconds();
+    mTimelineMarkers.AppendElement(MakeUnique<ProfilerMarker>(aInfo,
+                                                              aPayload,
+                                                              delta));
+  }
 }
 
 nsIDOMStorageManager*

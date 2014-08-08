@@ -35,6 +35,7 @@
 
 class TableTicker;
 class JSCustomObject;
+class nsDocShell;
 
 namespace mozilla {
 class TimeStamp;
@@ -268,6 +269,15 @@ static inline void profiler_tracing(const char* aCategory, const char* aInfo,
 
   mozilla_sampler_tracing(aCategory, aInfo, aMetaData);
 }
+
+void profiler_tracing(const char* aCategory, const char* aInfo,
+                      nsDocShell* aDocShell,
+                      TracingMetadata aMetaData = TRACING_DEFAULT);
+
+void profiler_tracing(const char* aCategory, const char* aInfo,
+                      ProfilerBacktrace* aCause,
+                      nsDocShell* aDocShell,
+                      TracingMetadata aMetaData = TRACING_DEFAULT);
 
 // Uncomment this to turn on systrace or build with
 // ac_add_options --enable-systace

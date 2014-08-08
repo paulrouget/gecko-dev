@@ -39,8 +39,10 @@ if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
         'UnwinderThread2.cpp',
     ]
 
-    # This file cannot be built in unified mode because of name clashes with mozglue headers on Android.
     SOURCES += [
+        # nsDocShell + Cocoa TextRange conflict
+        'GeckoProfilerImpl.cpp',
+        # This file cannot be built in unified mode because of name clashes with mozglue headers on Android.
         'local_debug_info_symbolizer.cc',
     ]
 
@@ -80,6 +82,7 @@ if CONFIG['MOZ_ENABLE_PROFILER_SPS']:
         ]
 
     LOCAL_INCLUDES += [
+        '/docshell/base',
         '/ipc/chromium/src',
         '/mozglue/linker',
         '/toolkit/crashreporter/google-breakpad/src',

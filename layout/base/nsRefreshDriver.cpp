@@ -25,6 +25,7 @@
 #include "WinUtils.h"
 #endif
 
+#include "nsISimpleEnumerator.h"
 #include "mozilla/ArrayUtils.h"
 #include "mozilla/AutoRestore.h"
 #include "nsRefreshDriver.h"
@@ -48,6 +49,7 @@
 #include "imgIContainer.h"
 #include "nsIFrameRequestCallback.h"
 #include "mozilla/dom/ScriptSettings.h"
+#include "nsDocShell.h"
 
 using namespace mozilla;
 using namespace mozilla::widget;
@@ -1051,6 +1053,42 @@ struct DocumentFrameCallbacks {
   nsIDocument::FrameRequestCallbackList mCallbacks;
 };
 
+static nsDocShell* GetDocShell(nsPresContext* presContext) {
+  return static_cast<nsDocShell*>(presContext->GetDocShell());
+}
+
+/**
+ * Emit profiler_tracing calls for all docshells included in aRootDocShell's
+ * hierarchy. That is because painting is a done at root level, but we need to
+ * record timeline events per docshell.
+ */
+static void profiler_tracing_recursedocshell(nsDocShell* aRootDocShell,
+                                             const char* aCategory,
+                                             const char* aInfo,
+                                             TracingMetadata aMetaData)
+{
+  nsCOMPtr<nsISimpleEnumerator> docShellEnumerator;
+  nsresult rv = aRootDocShell->GetDocShellEnumerator(nsIDocShellTreeItem::typeAll,
+    nsIDocShell::ENUMERATE_BACKWARDS, getter_AddRefs(docShellEnumerator));
+  if (NS_FAILED(rv)) return;
+
+  nsCOMPtr<nsIDocShell> curItem;
+
+  // XXX We should avoid searching in frameset documents here.
+  // We also need to honour mSearchSubFrames and mSearchParentFrames.
+  bool hasMore = false;
+  while (NS_SUCCEEDED(docShellEnumerator->HasMoreElements(&hasMore)) && hasMore) {
+    nsCOMPtr<nsISupports> curSupports;
+    rv = docShellEnumerator->GetNext(getter_AddRefs(curSupports));
+    if (NS_FAILED(rv)) break;
+    curItem = do_QueryInterface(curSupports, &rv);
+    if (NS_FAILED(rv)) break;
+
+    profiler_tracing(aCategory, aInfo, static_cast<nsDocShell*>(curItem.get()),
+                     aMetaData);
+  };
+}
+
 void
 nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
 {
@@ -1172,6 +1210,8 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
         bool tracingStyleFlush = false;
         nsAutoTArray<nsIPresShell*, 16> observers;
         observers.AppendElements(mStyleFlushObservers);
+        nsDocShell* docShell = GetDocShell(mPresContext);
+
         for (uint32_t j = observers.Length();
              j && mPresContext && mPresContext->GetPresShell(); --j) {
           // Make sure to not process observers which might have been removed
@@ -1182,7 +1222,8 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
 
           if (!tracingStyleFlush) {
             tracingStyleFlush = true;
-            profiler_tracing("Paint", "Styles", mStyleCause, TRACING_INTERVAL_START);
+            profiler_tracing("Paint", "Styles", mStyleCause, docShell,
+                             TRACING_INTERVAL_START);
             mStyleCause = nullptr;
           }
 
@@ -1194,7 +1235,7 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
         }
 
         if (tracingStyleFlush) {
-          profiler_tracing("Paint", "Styles", TRACING_INTERVAL_END);
+          profiler_tracing("Paint", "Styles", docShell, TRACING_INTERVAL_END);
         }
       }
 
@@ -1207,6 +1248,8 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
         bool tracingLayoutFlush = false;
         nsAutoTArray<nsIPresShell*, 16> observers;
         observers.AppendElements(mLayoutFlushObservers);
+        nsDocShell* docShell = GetDocShell(mPresContext);
+
         for (uint32_t j = observers.Length();
              j && mPresContext && mPresContext->GetPresShell(); --j) {
           // Make sure to not process observers which might have been removed
@@ -1217,7 +1260,8 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
 
           if (!tracingLayoutFlush) {
             tracingLayoutFlush = true;
-            profiler_tracing("Paint", "Reflow", mReflowCause, TRACING_INTERVAL_START);
+            profiler_tracing("Paint", "Reflow", mReflowCause, docShell,
+                             TRACING_INTERVAL_START);
             mReflowCause = nullptr;
           }
 
@@ -1231,7 +1275,7 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
         }
 
         if (tracingLayoutFlush) {
-          profiler_tracing("Paint", "Reflow", TRACING_INTERVAL_END);
+          profiler_tracing("Paint", "Reflow", docShell, TRACING_INTERVAL_END);
         }
       }
     }
@@ -1266,6 +1310,9 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
   mPresShellsToInvalidateIfHidden.Clear();
 
   if (mViewManagerFlushIsPending) {
+    nsDocShell* docShell = GetDocShell(mPresContext);
+    profiler_tracing_recursedocshell(docShell, "Paint", "DisplayList",
+      TRACING_INTERVAL_START);
     profiler_tracing("Paint", "DisplayList", TRACING_INTERVAL_START);
 #ifdef MOZ_DUMP_PAINTING
     if (nsLayoutUtils::InvalidationDebuggingIsEnabled()) {
@@ -1281,6 +1328,8 @@ nsRefreshDriver::Tick(int64_t aNowEpoch, TimeStamp aNowTime)
       printf_stderr("Ending ProcessPendingUpdates\n");
     }
 #endif
+    profiler_tracing_recursedocshell(docShell, "Paint", "DisplayList",
+      TRACING_INTERVAL_END);
     profiler_tracing("Paint", "DisplayList", TRACING_INTERVAL_END);
   }
 

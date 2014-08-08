@@ -668,6 +668,17 @@ interface nsIDocShell : nsIDocShellTreeItem
     out nsIPrincipal parentCharsetPrincipal);
 
   /**
+   * Controls whether the docShell records devtools timeline markers at the moment
+   */
+  [infallible] attribute boolean recordTimelineMarkers;
+
+  /**
+   * Get and flush the devtools timeline markers gathered by the docShell so far
+   */
+  [implicit_jscontext]
+  jsval flushTimelineMarkers();
+
+  /**
    * Add an observer to the list of parties to be notified when this docshell's
    * private browsing status is changed. |obs| must support weak references.
    */

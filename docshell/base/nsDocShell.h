@@ -18,6 +18,9 @@
 #include "nsIDOMStorageManager.h"
 #include "nsDocLoader.h"
 #include "mozilla/WeakPtr.h"
+#include "mozilla/TimeStamp.h"
+#include "mozilla/UniquePtr.h"
+#include "GeckoProfiler.h"
 
 // Helper Classes
 #include "nsCOMPtr.h"
@@ -46,6 +49,8 @@
 #include "nsCRT.h"
 #include "prtime.h"
 #include "nsRect.h"
+
+class ProfilerMarker;
 
 namespace mozilla {
 namespace dom {
@@ -79,6 +84,7 @@ class nsIURIFixup;
 class nsIURILoader;
 class nsIWebBrowserFind;
 class nsIWidget;
+class ProfilerMarkerTracing;
 
 /* load commands were moved to nsIDocShell.h */
 /* load types were moved to nsDocShellLoadTypes.h */
@@ -243,6 +249,14 @@ public:
     }
 
     nsresult HistoryTransactionRemoved(int32_t aIndex);
+
+    void AddTimelineMarker(const char* aCategory,
+                           const char* aInfo,
+                           TracingMetadata aMetaData);
+    void AddTimelineMarker(const char* aCategory,
+                           const char* aInfo,
+                           ProfilerBacktrace* aCause,
+                           TracingMetadata aMetaData);
 protected:
     // Object Management
     virtual ~nsDocShell();
@@ -917,12 +931,18 @@ private:
     nsWeakPtr mOpener;
     nsWeakPtr mOpenedRemote;
 
+    // Storing timeline markers to be consumed by the devtools timeline panel
+    mozilla::TimeStamp mTimelineStartTime;
+    nsTArray<mozilla::UniquePtr<ProfilerMarker>> mTimelineMarkers;
+
     // Separate function to do the actual name (i.e. not _top, _self etc.)
     // searching for FindItemWithName.
     nsresult DoFindItemWithName(const char16_t* aName,
                                 nsISupports* aRequestor,
                                 nsIDocShellTreeItem* aOriginalRequestor,
                                 nsIDocShellTreeItem** _retval);
+
+    void AddTimelineMarker(const char* aInfo, ProfilerMarkerTracing* aPayload);
 
 #ifdef DEBUG
     // We're counting the number of |nsDocShells| to help find leaks

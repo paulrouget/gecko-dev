@@ -117,6 +117,10 @@ public:
 
   float GetTime();
 
+  ProfilerMarkerPayload* GetPayload() const {
+    return mPayload;
+  }
+
 private:
   char* mMarkerName;
   ProfilerMarkerPayload* mPayload;
