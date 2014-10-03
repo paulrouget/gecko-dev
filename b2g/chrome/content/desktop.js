@@ -83,7 +83,8 @@ function checkDebuggerPort() {
 function initResponsiveDesign() {
   Cu.import('resource:///modules/devtools/responsivedesign.jsm');
   ResponsiveUIManager.on('on', function(event, {tab:tab}) {
-    let responsive = tab.__responsiveUI;
+
+    let responsive = ResponsiveUIManager.getResponsiveUIForTab(tab);
     let document = tab.ownerDocument;
 
     // Only tweak reponsive mode for shell.html tabs.

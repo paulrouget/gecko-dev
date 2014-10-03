@@ -7,13 +7,11 @@ function test() {
 
   waitForExplicitFinish();
 
-  gBrowser.selectedTab = gBrowser.addTab();
+  gBrowser.selectedTab = gBrowser.addTab("data:text/html,mop");
   gBrowser.selectedBrowser.addEventListener("load", function onload() {
     gBrowser.selectedBrowser.removeEventListener("load", onload, true);
-    waitForFocus(startTest, content);
+    startTest();
   }, true);
-
-  content.location = "data:text/html,mop";
 
   function startTest() {
     document.getElementById("Tools:ResponsiveUI").removeAttribute("disabled");
@@ -29,30 +27,34 @@ function test() {
     // Menus are correctly updated?
     is(document.getElementById("Tools:ResponsiveUI").getAttribute("checked"), "true", "menus checked");
 
-    instance = gBrowser.selectedTab.__responsiveUI;
+    instance = mgr.getResponsiveUIForTab(gBrowser.selectedTab);
+    instance._test_notifyOnResize();
+
     ok(instance, "instance of the module is attached to the tab.");
 
-    if (instance._floatingScrollbars) {
-      ensureScrollbarsAreFloating();
+    function next() {
+      instance.transitionsEnabled = false;
+      testPresets();
     }
 
-    instance.transitionsEnabled = false;
-
-    testPresets();
+    if (!window.matchMedia("(-moz-overlay-scrollbars)").matches) {
+      ensureScrollbarsAreFloating(next);
+    } else {
+      next();
+    }
   }
 
-  function ensureScrollbarsAreFloating() {
-    let body = gBrowser.contentDocument.body;
-    let html = gBrowser.contentDocument.documentElement;
-
-    let originalWidth = body.getBoundingClientRect().width;
-
-    html.style.overflowY = "scroll"; // Force scrollbars
-    // Flush. Should not be needed as getBoundingClientRect() should flush,
-    // but just in case.
-    gBrowser.contentWindow.getComputedStyle(html).overflowY;
-    let newWidth = body.getBoundingClientRect().width;
-    is(originalWidth, newWidth, "Floating scrollbars are presents");
+  function ensureScrollbarsAreFloating(next) {
+    info("ensureScrollbarsAreFloating");
+    let originalWidth = content.document.documentElement.getBoundingClientRect().width;
+    function onload() {
+      gBrowser.selectedBrowser.removeEventListener("load", onload, true);
+      let newWidth = content.document.documentElement.getBoundingClientRect().width;
+      is(originalWidth, newWidth, "Floating scrollbars are presents");
+      next();
+    }
+    gBrowser.selectedBrowser.addEventListener("load", onload, true);
+    content.location = "data:text/html;charset=utf-8,<div style%3D'height%3A5000px'><%2Fdiv>";
   }
 
   function testPresets() {
@@ -61,13 +63,15 @@ function test() {
         executeSoon(testCustom);
         return;
       }
-      instance.menulist.selectedIndex = c;
       let item = instance.menulist.firstChild.childNodes[c];
       let [width, height] = extractSizeFromString(item.getAttribute("label"));
-      is(content.innerWidth, width, "preset " + c + ": dimension valid (width)");
-      is(content.innerHeight, height, "preset " + c + ": dimension valid (height)");
-
-      testOnePreset(c - 1);
+      mgr.once("contentResize", () => {
+        info("once");
+        is(content.innerWidth, width, "preset " + c + ": dimension valid (width)");
+        is(content.innerHeight, height, "preset " + c + ": dimension valid (height)");
+        testOnePreset(c - 1);
+      });
+      instance.menulist.selectedIndex = c;
     }
     // Starting from length - 4 because last 3 items are not presets : separator, addbutton and removebutton
     testOnePreset(instance.menulist.firstChild.childNodes.length - 4);
