@@ -690,7 +690,7 @@ let gDevToolsBrowser = {
     }
 
     let defaultArea;
-    if (Services.prefs.getBoolPref("devtools.webide.widget.inToolbarByDefault")) {
+    if (Services.prefs.getBoolPref("devtools.webide.widget.inNavbarByDefault")) {
       defaultArea = CustomizableUI.AREA_NAVBAR;
     } else {
       defaultArea = CustomizableUI.AREA_PANEL;

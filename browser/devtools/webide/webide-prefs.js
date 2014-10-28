@@ -20,4 +20,4 @@ pref("devtools.webide.lastConnectedRuntime", "");
 pref("devtools.webide.lastSelectedProject", "");
 pref("devtools.webide.widget.autoinstall", true);
 pref("devtools.webide.widget.enabled", false);
-pref("devtools.webide.widget.inToolbarByDefault", false);
+pref("devtools.webide.widget.inNavbarByDefault", false);

@@ -10,5 +10,6 @@ function test() {
     Services.prefs.setBoolPref("devtools.webide.widget.enabled", false);
     ok(!document.querySelector("#webide-button"), "WebIDE button uninstalled");
     yield closeWebIDE(win);
+    Services.prefs.clearUserPref("devtools.webide.widget.enabled");
   }).then(finish, handleError);
 }
