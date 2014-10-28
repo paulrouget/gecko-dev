@@ -64,6 +64,8 @@ function closeWebIDE(win) {
 
   let deferred = promise.defer();
 
+  Services.prefs.setBoolPref("devtools.webide.widget.enabled", false);
+
   win.addEventListener("unload", function onUnload() {
     win.removeEventListener("unload", onUnload);
     info("WebIDE closed");
