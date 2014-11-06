@@ -23,7 +23,6 @@ EXTRA_COMPONENTS += [
     'ProcessGlobal.js',
     'SmsProtocolHandler.js',
     'SystemMessageGlue.js',
-    'TelProtocolHandler.js',
     'WebappsUpdateTimer.js',
 ]
 
