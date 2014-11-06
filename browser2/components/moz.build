@@ -56,7 +56,6 @@ EXTRA_JS_MODULES += [
     'LogShake.jsm',
     'SignInToWebsite.jsm',
     'SystemAppProxy.jsm',
-    'TelURIParser.jsm',
     'WebappsUpdater.jsm',
 ]
 

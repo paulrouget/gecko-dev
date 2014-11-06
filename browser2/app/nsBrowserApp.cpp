@@ -31,17 +31,9 @@
 #define strcasecmp _stricmp
 #endif
 
-#ifdef MOZ_WIDGET_GONK
-#include "GonkDisplay.h"
-#endif
-
 #include "BinaryPath.h"
 
 #include "nsXPCOMPrivate.h" // for MAXPATHLEN and XPCOM_DLL
-
-#ifdef MOZ_WIDGET_GONK
-# include <binder/ProcessState.h>
-#endif
 
 #include "mozilla/Telemetry.h"
 #include "mozilla/WindowsDllBlocklist.h"
@@ -145,11 +137,6 @@ static int do_main(int argc, char* argv[])
     argc -= 2;
   }
 
-#ifdef MOZ_WIDGET_GONK
-  /* Called to start the boot animation */
-  (void) mozilla::GetGonkDisplay();
-#endif
-
   if (appini) {
     nsXREAppData *appData;
     rv = XRE_CreateAppData(appini, &appData);
@@ -180,14 +167,6 @@ int main(int argc, _CONST char* argv[])
 {
 #ifndef MOZ_B2G_LOADER
   char exePath[MAXPATHLEN];
-#endif
-
-#ifdef MOZ_WIDGET_GONK
-  // This creates a ThreadPool for binder ipc. A ThreadPool is necessary to
-  // receive binder calls, though not necessary to send binder calls.
-  // ProcessState::Self() also needs to be called once on the main thread to
-  // register the main thread with the binder driver.
-  android::ProcessState::self()->startThreadPool();
 #endif
 
   nsresult rv;

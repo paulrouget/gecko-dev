@@ -4,29 +4,8 @@
 
 #filter substitution
 
-#ifndef MOZ_MULET
-pref("toolkit.defaultChromeURI", "chrome://b2g/content/shell.html");
-pref("browser.chromeURL", "chrome://b2g/content/");
-#endif
-
-#ifdef MOZ_MULET
-// Set FxOS as the default homepage
-// bug 1000122: this pref is fetched as a complex value,
-// so that it can't be set a just a string.
-// data: url is a workaround this.
-pref("browser.startup.homepage", "data:text/plain,browser.startup.homepage=chrome://b2g/content/shell.html");
-// Prevent having the firstrun page
-pref("startup.homepage_welcome_url", "");
-pref("browser.shell.checkDefaultBrowser", false);
-// Automatically open devtools on the firefox os panel
-pref("devtools.toolbox.host", "side");
-pref("devtools.toolbox.sidebar.width", 800);
-// Disable session store to ensure having only one tab opened
-pref("browser.sessionstore.max_tabs_undo", 0);
-pref("browser.sessionstore.max_windows_undo", 0);
-pref("browser.sessionstore.restore_on_demand", false);
-pref("browser.sessionstore.resume_from_crash", false);
-#endif
+pref("toolkit.defaultChromeURI", "about:");
+pref("browser.chromeURL", "about:logo");
 
 // Bug 945235: Prevent all bars to be considered visible:
 pref("toolkit.defaultChromeFeatures", "chrome,dialog=no,close,resizable,scrollbars,extrachrome");
@@ -38,11 +17,6 @@ pref("browser.viewport.scaleRatio", -1);
 pref("browser.ignoreNativeFrameTextSelection", true);
 
 /* cache prefs */
-#ifdef MOZ_WIDGET_GONK
-pref("browser.cache.disk.enable", true);
-pref("browser.cache.disk.capacity", 55000); // kilobytes
-pref("browser.cache.disk.parent_directory", "/cache");
-#endif
 pref("browser.cache.disk.smart_size.enabled", false);
 pref("browser.cache.disk.smart_size.first_run", false);
 
@@ -490,22 +464,6 @@ pref("services.push.adaptive.upperLimit", 1740000); // 29 min
 // enable udp wakeup support
 pref("services.push.udp.wakeupEnabled", true);
 
-// NetworkStats
-#ifdef MOZ_WIDGET_GONK
-pref("dom.mozNetworkStats.enabled", true);
-pref("dom.webapps.firstRunWithSIM", true);
-#endif
-
-// ResourceStats
-#ifdef MOZ_WIDGET_GONK
-pref("dom.resource_stats.enabled", true);
-#endif
-
-#ifdef MOZ_B2G_RIL
-// SingleVariant
-pref("dom.mozApps.single_variant_sourcedir", "/persist/svoperapps");
-#endif
-
 // WebSettings
 pref("dom.mozSettings.enabled", true);
 pref("dom.mozPermissionSettings.enabled", true);
@@ -537,26 +495,13 @@ pref("power.screen.timeout", 60);
 
 pref("full-screen-api.enabled", true);
 
-#ifndef MOZ_WIDGET_GONK
-// If we're not actually on physical hardware, don't make the top level widget
-// fullscreen when transitioning to fullscreen. This means in emulated
-// environments (like the b2g desktop client) we won't make the client window
-// fill the whole screen, we'll just make the content fill the client window,
-// i.e. it won't give the impression to content that the number of device
-// screen pixels changes!
-pref("full-screen-api.ignore-widgets", true);
-#endif
-
 pref("media.volume.steps", 10);
 
 #ifdef ENABLE_MARIONETTE
 //Enable/disable marionette server, set listening port
 pref("marionette.defaultPrefs.enabled", true);
 pref("marionette.defaultPrefs.port", 2828);
-#ifndef MOZ_WIDGET_GONK
-// On desktop builds, we need to force the socket to listen on localhost only
 pref("marionette.force-local", true);
-#endif
 #endif
 
 #ifdef MOZ_UPDATER
@@ -891,11 +836,6 @@ pref("b2g.osName", @MOZ_B2G_OS_NAME@);
 
 // Disable console buffering to save memory.
 pref("consoleservice.buffered", false);
-
-#ifdef MOZ_WIDGET_GONK
-// Performance testing suggests 2k is a better page size for SQLite.
-pref("toolkit.storage.pageSize", 2048);
-#endif
 
 // Enable captive portal detection.
 pref("captivedetect.canonicalURL", "http://detectportal.firefox.com/success.txt");
