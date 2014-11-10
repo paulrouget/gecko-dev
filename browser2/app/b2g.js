@@ -4,7 +4,7 @@
 
 #filter substitution
 
-pref("toolkit.defaultChromeURI", "about:");
+pref("toolkit.defaultChromeURI", "chrome://browser2/content/shell.xul");
 pref("browser.chromeURL", "about:logo");
 
 // Bug 945235: Prevent all bars to be considered visible:
