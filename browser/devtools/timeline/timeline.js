@@ -16,6 +16,8 @@ devtools.lazyRequireGetter(this, "Overview",
   "devtools/timeline/overview", true);
 devtools.lazyRequireGetter(this, "Waterfall",
   "devtools/timeline/waterfall", true);
+devtools.lazyRequireGetter(this, "MarkerDetails",
+  "devtools/timeline/markerDetails", true);
 
 devtools.lazyImporter(this, "PluralForm",
   "resource://gre/modules/PluralForm.jsm");
@@ -185,11 +187,17 @@ let TimelineView = {
   initialize: Task.async(function*() {
     this.overview = new Overview($("#timeline-overview"));
     this.waterfall = new Waterfall($("#timeline-waterfall"));
+    this.markerDetails = new MarkerDetails($("#timeline-waterfall-details"));
 
     this._onSelecting = this._onSelecting.bind(this);
     this._onRefresh = this._onRefresh.bind(this);
     this.overview.on("selecting", this._onSelecting);
     this.overview.on("refresh", this._onRefresh);
+    this.markerDetails.on("resize", this._onRefresh);
+
+    this._onMarkerSelected = this._onMarkerSelected.bind(this);
+    this.waterfall.on("selected", this._onMarkerSelected);
+    this.waterfall.on("unselected", this._onMarkerSelected);
 
     yield this.overview.ready();
     yield this.waterfall.recalculateBounds();
@@ -199,9 +207,24 @@ let TimelineView = {
    * Destruction function, called when the tool is closed.
    */
   destroy: function() {
+    this.markerDetails.off("resize", this._onRefresh);
+    this.waterfall.off("selected", this._onMarkerSelected);
+    this.waterfall.off("unselected", this._onMarkerSelected);
     this.overview.off("selecting", this._onSelecting);
     this.overview.off("refresh", this._onRefresh);
     this.overview.destroy();
+  },
+
+  /**
+   * A marker has been selected in the waterfall.
+   */
+  _onMarkerSelected: function(event, marker) {
+    if (event == "selected") {
+      this.markerDetails.render(marker);
+    }
+    if (event == "unselected") {
+      this.markerDetails.empty();
+    }
   },
 
   /**
@@ -226,7 +249,7 @@ let TimelineView = {
    */
   handleRecordingEnded: function() {
     $("#record-button").removeAttribute("checked");
-    $("#timeline-pane").selectedPanel = $("#timeline-waterfall");
+    $("#timeline-pane").selectedPanel = $("#timeline-waterfall-container");
 
     this.overview.selectionEnabled = true;
 
@@ -236,7 +259,6 @@ let TimelineView = {
       let end = start + this.overview.width * OVERVIEW_INITIAL_SELECTION_RATIO;
       this.overview.setSelection({ start, end });
     } else {
-      let duration = markers.endTime - markers.startTime;
       this.waterfall.setData(markers, markers.startTime, markers.endTime);
     }
 
@@ -264,14 +286,22 @@ let TimelineView = {
       this.waterfall.clearView();
       return;
     }
+    this.waterfall.resetSelection();
+    this.updateWaterfall();
+  },
+
+  /**
+   * Rebuild the waterfall.
+   */
+  updateWaterfall: function() {
     let selection = this.overview.getSelection();
     let start = selection.start / this.overview.dataScaleX;
     let end = selection.end / this.overview.dataScaleX;
 
     let markers = TimelineController.getMarkers();
-    let timeStart = markers.startTime + Math.min(start, end);
-    let timeEnd = markers.startTime + Math.max(start, end);
-    this.waterfall.setData(markers, timeStart, timeEnd);
+    let startTime = markers.startTime + Math.min(start, end);
+    let endTime = markers.startTime + Math.max(start, end);
+    this.waterfall.setData(markers, startTime, endTime);
   },
 
   /**
@@ -279,7 +309,7 @@ let TimelineView = {
    */
   _onRefresh: function() {
     this.waterfall.recalculateBounds();
-    this._onSelecting();
+    this.updateWaterfall();
   }
 };
 

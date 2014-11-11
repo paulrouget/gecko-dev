@@ -6,6 +6,7 @@
 EXTRA_JS_MODULES.devtools.timeline += [
     'panel.js',
     'widgets/global.js',
+    'widgets/markerDetails.js',
     'widgets/overview.js',
     'widgets/waterfall.js'
 ]

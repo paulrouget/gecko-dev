@@ -62,7 +62,11 @@
         <label value="&timelineUI.stopNotice2;"/>
       </hbox>
 
-      <vbox id="timeline-waterfall" flex="1"/>
+      <hbox id="timeline-waterfall-container" flex="1">
+        <vbox id="timeline-waterfall" flex="1"/>
+        <splitter class="devtools-vertical-splitter"/>
+        <vbox id="timeline-waterfall-details" class="theme-sidebar" width="150"/>
+      </hbox>
     </deck>
   </vbox>
 </window>

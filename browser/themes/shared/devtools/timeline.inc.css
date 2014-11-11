@@ -63,6 +63,10 @@
   overflow-y: auto;
 }
 
+.timeline-header-contents {
+  overflow-x: hidden;
+}
+
 .timeline-header-ticks,
 .timeline-marker-waterfall {
   /* Background created on a <canvas> in js. */
@@ -156,4 +160,38 @@
   border: 1px solid;
   border-radius: 1px;
   transform-origin: left center;
+}
+
+.theme-light .timeline-marker-container.selected > .timeline-marker-sidebar,
+.theme-light .timeline-marker-container.selected > .timeline-marker-waterfall {
+  background-color: #4c9ed9; /* Select Highlight Blue */
+  color: #f5f7fa; /* Light foreground text */
+}
+
+.theme-dark .timeline-marker-container.selected > .timeline-marker-sidebar,
+.theme-dark .timeline-marker-container.selected > .timeline-marker-waterfall {
+  background-color: #1d4f73; /* Select Highlight Blue */
+  color: #f5f7fa; /* Light foreground text */
+}
+
+#timeline-waterfall-details {
+  padding-top: 28px;
+  overflow: auto;
+}
+
+.marker-details-bullet {
+  width: 8px;
+  height: 8px;
+  margin: 0 8px;
+  border: 1px solid;
+  border-radius: 1px;
+}
+
+.marker-details-type {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.marker-details-duration {
+  font-weight: bold;
 }
