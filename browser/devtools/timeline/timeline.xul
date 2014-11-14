@@ -25,6 +25,9 @@
                        class="devtools-toolbarbutton"
                        oncommand="TimelineController.toggleRecording()"
                        tooltiptext="&timelineUI.recordButton.tooltip;"/>
+        <toolbarbutton id="filter-button"
+                       class="devtools-toolbarbutton"
+                       tooltiptext="xxx"/>
         <spacer flex="1"/>
         <label id="record-label"
                value="&timelineUI.recordLabel;"/>

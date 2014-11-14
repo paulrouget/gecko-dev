@@ -15,6 +15,11 @@
   visibility: hidden;
 }
 
+#filter-button {
+  list-style-image: url(timeline-filter.svg#filter);
+  list-style-image: url(chrome://browser/skin/devtools/timeline-filter.svg#filter);
+}
+
 .notice-container {
   font-size: 120%;
   padding-bottom: 35vh;
