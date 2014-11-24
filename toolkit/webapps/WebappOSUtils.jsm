@@ -179,6 +179,10 @@ this.WebappOSUtils = {
    // All fennec
     return aApp.basePath + "/" + aApp.id;
 
+#elifdef MOZ_FXHTML
+   // Firefox.html
+    return aApp.basePath + "/" + aApp.id;
+
 #elifdef MOZ_PHOENIX
    // Firefox
 
@@ -233,8 +237,10 @@ this.WebappOSUtils = {
 
     // Only for Firefox on Mac OS X
 #ifndef MOZ_B2G
+#ifndef MOZ_FXHTML
 #ifdef XP_MACOSX
     packagePath = OS.Path.join(packagePath, "Contents", "Resources");
+#endif
 #endif
 #endif
 

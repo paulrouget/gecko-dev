@@ -608,6 +608,107 @@ this.DOMApplicationRegistry = {
 #endif
   },
 
+  installFirefoxHTMLApp: Task.async(function*() {
+    let id = "browser.gaiamobile.org";
+
+    let zipWriter = Cc["@mozilla.org/zipwriter;1"].createInstance(Ci.nsIZipWriter);
+
+    let sourceDirPath = Services.prefs.getCharPref("fxhtml.sourceDir");
+    let sourceDir = FileUtils.File(sourceDirPath);
+
+    if (!sourceDir.exists()) {
+      throw "sourceDir doesn't exist";
+    }
+
+    if (!sourceDir.isDirectory()) {
+      throw "sourceDir is not a directory";
+    }
+
+    let installDir = this._getAppDir(id);
+    let zipFile = installDir.clone();
+    zipFile.append("application.zip");
+
+    const PR_USEC_PER_MSEC = 1000;
+    const PR_RDWR = 0x04;
+    const PR_CREATE_FILE = 0x08;
+    const PR_TRUNCATE = 0x20;
+
+    zipWriter.open(zipFile, PR_RDWR | PR_CREATE_FILE | PR_TRUNCATE);
+
+    (function addDirToZip(dir, basePath) {
+      let files = dir.directoryEntries;
+      while (files.hasMoreElements()) {
+        let file = files.getNext().QueryInterface(Ci.nsIFile);
+        if (file.isHidden() || file.isSpecial() || file.equals(zipWriter.file)) {
+          continue;
+        }
+
+        dump("Adding: " + basePath + file.leafName + "\n");
+        if (file.isDirectory()) {
+          zipWriter.addEntryDirectory(basePath + file.leafName + "/",
+                                      file.lastModifiedTime * PR_USEC_PER_MSEC,
+                                      true);
+                                      addDirToZip(file, basePath + file.leafName + "/");
+        } else {
+          zipWriter.addEntryFile(basePath + file.leafName,
+                                 Ci.nsIZipWriter.COMPRESSION_DEFAULT,
+                                 file,
+                                 true);
+        }
+      }
+    })(sourceDir, "");
+
+    let deferred = Promise.defer();
+
+    zipWriter.processQueue({
+      onStartRequest: function onStartRequest(request, context) {},
+      onStopRequest: (request, context, status) => {
+        if (status == Cr.NS_OK) {
+          zipWriter.close();
+          deferred.resolve();
+        }
+        else {
+          let { name, message } = getResultText(status);
+          deferred.reject(name + ": " + message);
+        }
+      }
+    }, null);
+
+    yield deferred.promise;
+
+    let manFile = sourceDir.clone();
+    dump("Copying manifest.webapp\n");
+    manFile.append("manifest.webapp");
+    manFile.copyTo(installDir, "");
+
+    let origin = "app://" + id;
+    let manifestURL = origin + "/manifest.webapp";
+
+    Services.obs.notifyObservers(zipFile, "flush-cache-entry", null);
+
+    // Create a fake app object with the minimum set of properties we need.
+    let app = {
+      origin: origin,
+      installOrigin: origin,
+      manifestURL: manifestURL,
+      appStatus: Ci.nsIPrincipal.APP_STATUS_CERTIFIED,
+      receipts: null,
+      kind: this.kPackaged
+    }
+
+    app.id = id;
+    app.installTime = Date.now(),
+    app.installState = "installed",
+    app.removable = false;
+    app.basePath = this.getWebAppsBasePath(),
+    app.localId = (id in this.webapps) ?  this.webapps[id].localId : this._nextLocalId();
+
+    this.webapps[id] = app;
+    this.updatePermissionsForApp(id);
+
+    return;
+  }),
+
   // Implements the core of bug 787439
   // if at first run, go through these steps:
   //   a. load the core apps registry.
@@ -713,6 +814,10 @@ this.DOMApplicationRegistry = {
 
 #ifdef MOZ_WIDGET_GONK
         yield this.installSystemApps();
+#endif
+
+#ifdef MOZ_FXHTML
+        yield this.installFirefoxHTMLApp();
 #endif
 
         // At first run, install preloaded apps and set up their permissions.

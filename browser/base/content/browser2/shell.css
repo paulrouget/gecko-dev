@@ -1,0 +1,37 @@
+window {
+  min-width: 500px;
+  min-height: 300px;
+%ifdef XP_MACOSX
+  -moz-window-dragging: drag;
+  -moz-appearance: -moz-mac-vibrancy-light;
+%endif
+%ifndef XP_MACOSX
+  -moz-appearance: menubar;
+%endif
+}
+
+%ifdef XP_MACOSX
+#titlebar {
+  -moz-binding: url("chrome://global/content/bindings/general.xml#windowdragbox");
+  -moz-window-dragging: drag;
+  /* FIXME: remove this line if we want vibrancy all over the window */
+  -moz-appearance: -moz-window-titlebar;
+  margin-bottom: -30px;
+  min-height:  39px;
+}
+
+#titlebar-buttonbox {
+  -moz-appearance: -moz-window-button-box;
+  margin-top: 11px;
+}
+
+#titlebar-spacer {
+  pointer-events: none;
+}
+%endif
+
+iframe {
+  display: -moz-box;
+  -moz-box-flex: 1;
+  border-width: 0;
+}

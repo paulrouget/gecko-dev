@@ -176,3 +176,12 @@ browser.jar:
 #endif
 
 % override chrome://global/content/netError.xhtml chrome://browser/content/aboutNetError.xhtml
+
+#ifdef MOZ_FXHTML
+browser2.jar:
+%  content browser2 %content/
+
+*       content/shell.xul        (content/browser2/shell.xul)
+*       content/shell.css        (content/browser2/shell.css)
+        content/shell.js         (content/browser2/shell.js)
+#endif

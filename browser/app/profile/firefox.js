@@ -1821,3 +1821,16 @@ pref("print.enable_e10s_testing", true);
 #endif
 
 pref("browser.defaultbrowser.notificationbar", false);
+
+#ifdef MOZ_FXHTML
+pref("network.dns.localDomains", "browser.gaiamobile.org");
+pref("dom.webcomponents.enabled", true);
+pref("browser.dom.window.dump.enabled", true);
+pref("dom.mozBrowserFramesEnabled", true);
+pref("dom.ipc.processCount", 100000);
+pref("devtools.chrome.enabled", true);
+pref("dom.webapps.useCurrentProfile", true);
+pref("security.apps.certified.CSP.default", "default-src *; script-src 'self'; object-src 'none'; style-src 'self' 'unsafe-inline' app://browser.gaiamobile.org");
+pref("browser.chromeURL", "chrome://browser2/content/shell.xul");
+pref("fxhtml.sourceDir", "/Users/paul/github/browser2/src");
+#endif
