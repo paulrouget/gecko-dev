@@ -1092,3 +1092,16 @@ pref("dom.mozSettings.allowForceReadOnly", false);
 
 // RequestSync API is enabled by default on B2G.
 pref("dom.requestSync.enabled", true);
+
+// browser.html
+pref("dom.ipc.tabs.disabled", false);
+pref("layers.acceleration.disabled", false);
+pref("layers.async-pan-zoom.enabled", true);
+pref("gfx.content.azure.backends", "cairo");
+pref("dom.meta-viewport.enabled", false);
+pref("browser.dom.window.dump.enabled", true);
+pref("apz.subframe.enabled", true);
+pref("dom.browser_frames.useAsyncPanZoom", true);
+pref("selectioncaret.enabled", false);
+pref("browser.ignoreNativeFrameTextSelection", false);
+pref("apz.overscroll.enabled", false);
