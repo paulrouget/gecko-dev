@@ -1053,4 +1053,11 @@ interface nsIDocShell : nsIDocShellTreeItem
    * Holds the id of the payment request associated with this docshell if any.
    */
   attribute DOMString paymentRequestId;
+
+  /*
+   * Allow usage of -moz-window-dragging:drag.
+   * True by default for chrome docshells.
+   */
+  [infallible] readonly attribute boolean windowDraggingAllowed;
+
 };

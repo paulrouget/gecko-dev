@@ -587,7 +587,8 @@ nsDisplayListBuilder::nsDisplayListBuilder(nsIFrame* aReferenceFrame,
       mContainsPluginItem(false),
       mAncestorHasTouchEventHandler(false),
       mAncestorHasScrollEventHandler(false),
-      mHaveScrollableDisplayPort(false)
+      mHaveScrollableDisplayPort(false),
+      mWindowDraggingAllowed(false)
 {
   MOZ_COUNT_CTOR(nsDisplayListBuilder);
   PL_InitArenaPool(&mPool, "displayListArena", 1024,
@@ -1005,6 +1006,8 @@ nsDisplayListBuilder::EnterPresShell(nsIFrame* aReferenceFrame)
     mFramesMarkedForDisplay.AppendElement(state->mCaretFrame);
     MarkFrameForDisplay(state->mCaretFrame, nullptr);
   }
+
+  aReferenceFrame->PresContext()->GetDocShell()->GetWindowDraggingAllowed(&mWindowDraggingAllowed);
 }
 
 void
@@ -1015,6 +1018,7 @@ nsDisplayListBuilder::LeavePresShell(nsIFrame* aReferenceFrame)
       "Presshell mismatch");
   ResetMarkedFramesForDisplayList();
   mPresShellStates.SetLength(mPresShellStates.Length() - 1);
+  mWindowDraggingAllowed = false;
 }
 
 void
@@ -1236,7 +1240,7 @@ nsDisplayListBuilder::RecomputeCurrentAnimatedGeometryRoot()
 void
 nsDisplayListBuilder::AdjustWindowDraggingRegion(nsIFrame* aFrame)
 {
-  if (!IsForPainting() || IsInSubdocument()) {
+  if (!mWindowDraggingAllowed || !IsForPainting()) {
     return;
   }
 

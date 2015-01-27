@@ -842,6 +842,7 @@ nsDocShell::nsDocShell():
     mInPrivateBrowsing(false),
     mUseRemoteTabs(false),
     mDeviceSizeIsPageSize(false),
+    mWindowDraggingAllowed(true),
     mCanExecuteScripts(false),
     mFiredUnloadEvent(false),
     mEODForCurrentDocument(false),
@@ -4509,6 +4510,19 @@ NS_IMETHODIMP
 nsDocShell::GetDeviceSizeIsPageSize(bool* aValue)
 {
   *aValue = mDeviceSizeIsPageSize;
+  return NS_OK;
+}
+
+NS_IMETHODIMP
+nsDocShell::GetWindowDraggingAllowed(bool* aValue)
+{
+
+#ifdef MOZ_WIDGET_GONK
+  *aValue = false;
+#else
+  *aValue = mItemType == typeChrome || mFrameType == eFrameTypeApp;
+#endif
+
   return NS_OK;
 }
 
