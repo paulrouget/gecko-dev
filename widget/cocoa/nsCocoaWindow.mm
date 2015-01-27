@@ -3268,9 +3268,8 @@ static const NSString* kStateShowsToolbarButton = @"showsToolbarButton";
 
 - (NSPoint)windowButtonsPositionWithDefaultPosition:(NSPoint)aDefaultPosition
 {
-  if ([self drawsContentsIntoWindowFrame] && !NSIsEmptyRect(mWindowButtonsRect)) {
-    return NSMakePoint(std::max(mWindowButtonsRect.origin.x, aDefaultPosition.x),
-                       std::min(mWindowButtonsRect.origin.y, aDefaultPosition.y));
+  if ([self drawsContentsIntoWindowFrame]) {
+    return NSMakePoint(mWindowButtonsRect.origin.x, mWindowButtonsRect.origin.y);
   }
   return aDefaultPosition;
 }
