@@ -81,6 +81,11 @@ interface BrowserElementPrivileged {
   [Throws,
    Pref="dom.mozBrowserFramesEnabled",
    CheckPermissions="browser"]
+  void smoothScrollBy(float x, float y);
+
+  [Throws,
+   Pref="dom.mozBrowserFramesEnabled",
+   CheckPermissions="browser"]
   void goBack();
 
   [Throws,

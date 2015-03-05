@@ -636,6 +636,10 @@ BrowserElementParent.prototype = {
     this._sendAsyncMsg('zoom', {zoom: zoom / 100.0});
   }),
 
+  smoothScrollBy: function(x, y) {
+    this._sendAsyncMsg('smooth-scroll-by', {x, y});
+  },
+
   purgeHistory: defineDOMRequestMethod('purge-history'),
 
 

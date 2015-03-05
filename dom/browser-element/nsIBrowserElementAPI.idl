@@ -26,7 +26,7 @@ interface nsIBrowserElementNextPaintListener : nsISupports
  * Interface to the BrowserElementParent implementation. All methods
  * but setFrameLoader throw when the remote process is dead.
  */
-[scriptable, uuid(3811446f-90bb-42c1-b2b6-aae3603b61e1)]
+[scriptable, uuid(8e84207f-8aa1-4f51-b2ce-001afdefb614)]
 interface nsIBrowserElementAPI : nsISupports
 {
   void setFrameLoader(in nsIFrameLoader frameLoader);
@@ -52,6 +52,7 @@ interface nsIBrowserElementAPI : nsISupports
                       [const, array, size_is(count)] in float aForces,
                       in uint32_t count,
                       in long aModifiers);
+  void smoothScrollBy(in float x, in float y);
   void goBack();
   void goForward();
   void reload(in boolean hardReload);

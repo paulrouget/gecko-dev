@@ -205,6 +205,7 @@ BrowserElementChild.prototype = {
       "reload": this._recvReload,
       "stop": this._recvStop,
       "zoom": this._recvZoom,
+      "smooth-scroll-by": this._recvSmoothScrollBy,
       "unblock-modal-prompt": this._recvStopWaiting,
       "fire-ctx-callback": this._recvFireCtxCallback,
       "owner-visibility-change": this._recvOwnerVisibilityChange,
@@ -1163,6 +1164,12 @@ BrowserElementChild.prototype = {
 
   _recvZoom: function(data) {
     docShell.contentViewer.fullZoom = data.json.zoom;
+  },
+
+  _recvSmoothScrollBy: function(data) {
+    content.requestAnimationFrame(() => {
+      content.scrollBy({left: data.json.x, top:data.json.y, behavior: 'smooth'});
+    });
   },
 
   _recvDoCommand: function(data) {

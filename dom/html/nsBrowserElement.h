@@ -75,6 +75,7 @@ public:
                 ErrorResult& aRv);
 
   void Zoom(float aZoom, ErrorResult& aRv);
+  void SmoothScrollBy(float x, float y, ErrorResult& aRv);
 
   already_AddRefed<dom::DOMRequest> GetCanGoBack(ErrorResult& aRv);
   already_AddRefed<dom::DOMRequest> GetCanGoForward(ErrorResult& aRv);
