@@ -500,7 +500,7 @@ PuppetWidget::ExecuteNativeKeyBinding(NativeKeyBindingsType aType,
                                       void* aCallbackData)
 {
   // B2G doesn't have native key bindings.
-#ifdef MOZ_B2G
+#if defined (MOZ_B2G) && !defined (MOZ_GRAPHENE)
   return false;
 #else // #ifdef MOZ_B2G
   MOZ_ASSERT(mNativeKeyCommandsValid);

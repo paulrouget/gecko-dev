@@ -17,7 +17,7 @@
 using namespace mozilla;
 using namespace mozilla::widget;
 
-#ifndef MOZ_B2G
+#if !defined(MOZ_B2G) || defined(MOZ_GRAPHENE)
 
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsClipboardProxy)
 NS_GENERIC_FACTORY_CONSTRUCTOR(nsColorPickerProxy)
