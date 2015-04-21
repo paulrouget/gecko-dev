@@ -215,7 +215,8 @@ BrowserElementParent.prototype = {
       "resize": this._fireEventFromMsg,
       "activitydone": this._fireEventFromMsg,
       "scroll": this._fireEventFromMsg,
-      "opentab": this._fireEventFromMsg
+      "opentab": this._fireEventFromMsg,
+      "on-scroll-in-rfa": this._fireOnScrollInRFA
     };
 
     this._mm.addMessageListener('browser-element-api:call', function(aMsg) {
@@ -346,6 +347,11 @@ BrowserElementParent.prototype = {
     // we fire a context menu event even if the child didn't define a
     // custom context menu
     return !this._frameElement.dispatchEvent(evt);
+  },
+
+  _fireOnScrollInRFA: function() {
+    let evt = this._createEvent('on-scroll-in-rfa', {}, false);
+    this._frameElement.dispatchEvent(evt);
   },
 
   /**
@@ -636,6 +642,10 @@ BrowserElementParent.prototype = {
     zoom = Math.max(getIntPref("zoom.minPercent", 50), zoom);
     this._sendAsyncMsg('zoom', {zoom: zoom / 100.0});
   }),
+
+  smoothScrollBy: function(x, y) {
+    this._sendAsyncMsg('smooth-scroll-by', {x, y});
+  },
 
   purgeHistory: defineDOMRequestMethod('purge-history'),
 
