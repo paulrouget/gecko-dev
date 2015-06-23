@@ -14,6 +14,11 @@ dictionary BrowserElementDownloadOptions {
   DOMString? referrer;
 };
 
+dictionary BrowserElementExecuteScriptOptions {
+  DOMString? url;
+  DOMString? origin;
+};
+
 [NoInterfaceObject]
 interface BrowserElement {
 };
@@ -164,5 +169,11 @@ interface BrowserElementPrivileged {
    Pref="dom.mozBrowserFramesEnabled",
    CheckPermissions="browser"]
   void clearMatch();
+
+  [Throws,
+   Pref="dom.mozBrowserFramesEnabled",
+   CheckPermissions="browser browser:universalxss"]
+  DOMRequest executeScript(DOMString script,
+                           optional BrowserElementExecuteScriptOptions options);
 
 };
