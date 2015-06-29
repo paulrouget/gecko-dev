@@ -19,6 +19,7 @@ EXTRA_COMPONENTS += [
     'HelperAppDialog.js',
     'InterAppCommUIGlue.js',
     'MailtoProtocolHandler.js',
+    'MediaStreamProtocolHandler.js',
     'MobileIdentityUIGlue.js',
     'OMAContentHandler.js',
     'PaymentGlue.js',

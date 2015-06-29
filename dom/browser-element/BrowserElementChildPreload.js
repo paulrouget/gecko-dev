@@ -234,6 +234,7 @@ BrowserElementChild.prototype = {
       "find-next": this._recvFindNext.bind(this),
       "clear-match": this._recvClearMatch.bind(this),
       "execute-script": this._recvExecuteScript,
+      "request-pip": this._recvRequestPip.bind(this),
     }
 
     addMessageListener("browser-element-api:call", function(aMessage) {
@@ -1376,6 +1377,19 @@ BrowserElementChild.prototype = {
     }
     this._finder.removeSelection();
     sendAsyncMsg('findchange', {active: false});
+  },
+
+  _recvRequestPip: function(data) {
+    let videos = content.document.querySelectorAll('video');
+    for (let video of videos) {
+      if (!video.paused) {
+        let stream = video.mozCaptureStream();
+        let url = content.URL.createObjectURL(stream);
+        let ratio = video.videoWidth / video.videoHeight;
+        content.open(url, "mozpip", "ratio=" + ratio);
+        break;
+      }
+    }
   },
 
   _recvSetInputMethodActive: function(data) {

@@ -172,6 +172,11 @@ interface BrowserElementPrivileged {
 
   [Throws,
    Pref="dom.mozBrowserFramesEnabled",
+   CheckPermissions="browser"]
+  void requestPip();
+
+  [Throws,
+   Pref="dom.mozBrowserFramesEnabled",
    CheckPermissions="browser browser:universalxss"]
   DOMRequest executeScript(DOMString script,
                            optional BrowserElementExecuteScriptOptions options);

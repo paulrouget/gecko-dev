@@ -88,6 +88,8 @@ public:
   void FindNext(dom::BrowserFindDirection aDirection, ErrorResult& aRv);
   void ClearMatch(ErrorResult& aRv);
 
+  void RequestPip(ErrorResult& aRv);
+
   void AddNextPaintListener(dom::BrowserElementNextPaintEventCallback& listener,
                             ErrorResult& aRv);
   void RemoveNextPaintListener(dom::BrowserElementNextPaintEventCallback& listener,

@@ -671,6 +671,10 @@ BrowserElementParent.prototype = {
     return this._sendAsyncMsg('clear-match');
   }),
 
+  requestPip: defineNoReturnMethod(function() {
+    return this._sendAsyncMsg('request-pip');
+  }),
+
   goBack: defineNoReturnMethod(function() {
     this._sendAsyncMsg('go-back');
   }),

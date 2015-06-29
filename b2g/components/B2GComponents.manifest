@@ -56,6 +56,10 @@ contract @mozilla.org/network/protocol;1?name=tel {782775dd-7351-45ea-aff1-0ffa8
 component {81ca20cb-0dad-4e32-8566-979c8998bd73} SmsProtocolHandler.js
 contract @mozilla.org/network/protocol;1?name=sms {81ca20cb-0dad-4e32-8566-979c8998bd73}
 
+# MediaStreamProtocolHandler.js
+component {2b8c4c14-0d6a-49fe-9d4b-db741a9d882a} MediaStreamProtocolHandler.js
+contract @mozilla.org/network/protocol;1?name=mediastream {2b8c4c14-0d6a-49fe-9d4b-db741a9d882a}
+
 # MailtoProtocolHandler.js
 component {50777e53-0331-4366-a191-900999be386c} MailtoProtocolHandler.js
 contract @mozilla.org/network/protocol;1?name=mailto {50777e53-0331-4366-a191-900999be386c}

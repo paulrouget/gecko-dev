@@ -433,6 +433,19 @@ nsBrowserElement::ClearMatch(ErrorResult& aRv)
 }
 
 void
+nsBrowserElement::RequestPip(ErrorResult& aRv)
+{
+  NS_ENSURE_TRUE_VOID(IsBrowserElementOrThrow(aRv));
+  NS_ENSURE_TRUE_VOID(IsNotWidgetOrThrow(aRv));
+
+  nsresult rv = mBrowserElementAPI->RequestPip();
+
+  if (NS_FAILED(rv)) {
+    aRv.Throw(rv);
+  }
+}
+
+void
 nsBrowserElement::AddNextPaintListener(BrowserElementNextPaintEventCallback& aListener,
                                        ErrorResult& aRv)
 {

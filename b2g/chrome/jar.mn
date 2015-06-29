@@ -43,6 +43,7 @@ chrome.jar:
   content/ErrorPage.js                  (content/ErrorPage.js)
   content/aboutCertError.xhtml          (content/aboutCertError.xhtml)
   content/netError.css                  (content/netError.css)
+  content/MediaStreamDocument.xhtml     (content/MediaStreamDocument.xhtml)
   content/images/errorpage-larry-black.png (content/images/errorpage-larry-black.png)
   content/images/errorpage-larry-white.png (content/images/errorpage-larry-white.png)
   content/images/errorpage-warning.png (content/images/errorpage-warning.png)
