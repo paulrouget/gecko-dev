@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!-- This Source Code Form is subject to the terms of the Mozilla Public
+   - License, v. 2.0. If a copy of the MPL was not distributed with this
+   - file, You can obtain one at http://mozilla.org/MPL/2.0/. -->
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <title>media stream</title>
+  </head>
+
+  <body>
+    <video autoplay="autoplay" controls="controls">
+      <source></source>
+    </video>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+      }
+      video {
+        width: 100vw;
+        height: 100vh;
+      }
+    </style>
+    <script>
+      document.querySelector('source').src = document.location;
+      document.querySelector('video').play();
+    </script>
+  </body>
+</html>
